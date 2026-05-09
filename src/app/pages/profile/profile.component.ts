@@ -91,9 +91,4 @@ export class ProfileComponent implements OnInit {
     await this.profileService.refreshCachedProfile(id);
     this.successMessage = 'Профіль збережено.';
   }
-
-  async logout(): Promise<void> {
-    await this.supabase.signOut();
-    await this.router.navigateByUrl('/');
-  }
 }

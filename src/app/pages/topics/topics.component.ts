@@ -4,6 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
 
+import { SupabaseService } from '../../core/supabase/supabase.service';
 import type { TopicSummary } from '../../core/topics/topic.model';
 import { TopicsService } from '../../core/topics/topics.service';
 
@@ -16,7 +17,9 @@ import { TopicsService } from '../../core/topics/topics.service';
 })
 export class TopicsComponent {
   private readonly topicsService = inject(TopicsService);
+  private readonly supabase = inject(SupabaseService);
 
+  readonly user = this.supabase.user;
   readonly topics = signal<TopicSummary[]>([]);
   readonly loading = signal(true);
   readonly errorMessage = signal<string | null>(null);

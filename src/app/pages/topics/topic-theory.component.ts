@@ -10,6 +10,7 @@ import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
 
 import type { TopicDetail } from '../../core/topics/topic.model';
+import { SupabaseService } from '../../core/supabase/supabase.service';
 import { TopicsService } from '../../core/topics/topics.service';
 
 marked.setOptions({ gfm: true, breaks: true });
@@ -24,7 +25,10 @@ marked.setOptions({ gfm: true, breaks: true });
 export class TopicTheoryComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly topicsService = inject(TopicsService);
+  private readonly supabase = inject(SupabaseService);
   private readonly sanitizer = inject(DomSanitizer);
+
+  readonly user = this.supabase.user;
 
   /** `undefined` — ще завантажується; `null` — тема не знайдена; інакше рядок з БД. */
   readonly topicResult = toSignal(

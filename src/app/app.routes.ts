@@ -13,6 +13,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/topics/topics.component').then((m) => m.TopicsComponent),
   },
   {
+    path: 'topics/:slug/practice',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/topics/topic-practice.component').then((m) => m.TopicPracticeComponent),
+  },
+  {
     path: 'topics/:slug',
     loadComponent: () => import('./pages/topics/topic-theory.component').then((m) => m.TopicTheoryComponent),
   },
