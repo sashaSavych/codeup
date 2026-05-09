@@ -53,6 +53,38 @@
   box-shadow: 0 0 0 1px rgb(13 148 136 / 0.35);
 }
 
+/* Disabled — grayed (must override forced white on .p-inputtext above). */
+.cu-shell main .p-inputtext:disabled,
+.cu-shell main .p-inputtext.p-disabled,
+.cu-shell main .p-password .p-inputtext:disabled,
+.cu-shell main .p-password .p-inputtext.p-disabled,
+.cu-shell main .p-password-input:disabled {
+  background-color: rgb(241 245 249) !important;
+  color: rgb(100 116 139) !important;
+  border-color: rgb(226 232 240) !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.cu-shell main textarea.p-inputtextarea:disabled,
+.cu-shell main .p-inputtextarea.p-disabled {
+  background-color: rgb(241 245 249) !important;
+  color: rgb(100 116 139) !important;
+  border-color: rgb(226 232 240) !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+}
+
+.cu-shell main input:not(.p-inputtext):disabled,
+.cu-shell main select:disabled,
+.cu-shell main textarea:not(.p-inputtextarea):disabled {
+  background-color: rgb(241 245 249);
+  color: rgb(100 116 139);
+  border-color: rgb(226 232 240);
+  cursor: not-allowed;
+}
+
 html,
 body {
   height: 100%;

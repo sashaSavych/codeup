@@ -2,13 +2,6 @@
   <p class="text-slate-600">Завантаження…</p>
 } @else {
   <p-card header="Мій профіль">
-    @if (user(); as u) {
-      <p class="cu-email-strip mb-4 text-sm">
-        <span class="cu-email-label">Електронна пошта:</span>
-        <span class="cu-email-value ml-1">{{ u.email }}</span>
-      </p>
-    }
-
     @if (errorMessage) {
       <p-message class="mb-4 block" severity="error" [text]="errorMessage" [closable]="false" />
     }
@@ -17,6 +10,10 @@
     }
 
     <form class="flex max-w-xl flex-col gap-4" (ngSubmit)="save()" [formGroup]="form">
+      <div class="flex flex-col gap-2 pt-2">
+        <label class="cu-field-label" for="pf-first">Електронна пошта:</label>
+        <input pInputText id="pf-first" class="w-full" [value]="user()?.email" disabled />
+      </div>
       <div class="flex flex-col gap-2">
         <label class="cu-field-label" for="pf-first">Імʼя</label>
         <input pInputText id="pf-first" class="w-full" formControlName="first_name" autocomplete="given-name" />
