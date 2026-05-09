@@ -17,8 +17,13 @@
               class="cu-chat-bubble"
               [class.cu-chat-bubble--user]="m.role === 'user'"
               [class.cu-chat-bubble--assistant]="m.role === 'assistant'"
+              [class.cu-chat-md]="m.role === 'assistant'"
             >
-              {{ m.content }}
+              @if (m.role === 'assistant') {
+                <div [innerHTML]="assistantMarkdown(m.content)"></div>
+              } @else {
+                {{ m.content }}
+              }
             </div>
           </div>
         }

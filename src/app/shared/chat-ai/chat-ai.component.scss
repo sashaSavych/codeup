@@ -55,6 +55,81 @@
   box-shadow:
     0 1px 2px rgb(15 23 42 / 0.04),
     0 4px 12px -2px rgb(15 23 42 / 0.06);
+  white-space: normal;
+}
+
+/* Markdown inside assistant bubble */
+:host ::ng-deep .cu-chat-md {
+  word-break: break-word;
+}
+
+:host ::ng-deep .cu-chat-md p {
+  margin: 0 0 0.5rem;
+}
+
+:host ::ng-deep .cu-chat-md p:last-child {
+  margin-bottom: 0;
+}
+
+:host ::ng-deep .cu-chat-md h1,
+:host ::ng-deep .cu-chat-md h2,
+:host ::ng-deep .cu-chat-md h3 {
+  margin: 0.75rem 0 0.35rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgb(15 23 42);
+}
+
+:host ::ng-deep .cu-chat-md h1:first-child,
+:host ::ng-deep .cu-chat-md h2:first-child,
+:host ::ng-deep .cu-chat-md h3:first-child {
+  margin-top: 0;
+}
+
+:host ::ng-deep .cu-chat-md ul,
+:host ::ng-deep .cu-chat-md ol {
+  margin: 0 0 0.5rem;
+  padding-left: 1.25rem;
+}
+
+:host ::ng-deep .cu-chat-md li {
+  margin-bottom: 0.2rem;
+}
+
+:host ::ng-deep .cu-chat-md pre {
+  margin: 0.35rem 0 0.5rem;
+  padding: 0.5rem 0.65rem;
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(226 232 240);
+  background: rgb(248 250 252);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+:host ::ng-deep .cu-chat-md code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+:host ::ng-deep .cu-chat-md p code,
+:host ::ng-deep .cu-chat-md li code {
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.25rem;
+  background: rgb(241 245 249);
+  font-size: 0.8125rem;
+}
+
+:host ::ng-deep .cu-chat-md a {
+  color: rgb(13 148 136);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+:host ::ng-deep .cu-chat-md blockquote {
+  margin: 0.35rem 0;
+  padding-left: 0.75rem;
+  border-left: 3px solid rgb(203 213 225);
+  color: rgb(71 85 105);
 }
 
 .cu-chat-bubble--user {
