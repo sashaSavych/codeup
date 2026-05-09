@@ -11,8 +11,8 @@
 
     <form class="flex max-w-xl flex-col gap-4" (ngSubmit)="save()" [formGroup]="form">
       <div class="flex flex-col gap-2 pt-2">
-        <label class="cu-field-label" for="pf-first">Електронна пошта:</label>
-        <input pInputText id="pf-first" class="w-full" [value]="user()?.email" disabled />
+        <label class="cu-field-label" for="pf-email">Електронна пошта:</label>
+        <input pInputText id="pf-email" class="w-full" [value]="user()?.email" disabled />
       </div>
       <div class="flex flex-col gap-2">
         <label class="cu-field-label" for="pf-first">Імʼя</label>
@@ -47,7 +47,22 @@
       </div>
 
       <div class="flex flex-wrap gap-2">
-        <p-button type="submit" label="Зберегти" icon="pi pi-save" [loading]="saving" />
+        <p-button
+          type="submit"
+          label="Зберегти"
+          icon="pi pi-save"
+          [loading]="saving"
+          [disabled]="!hasUnsavedChanges() || saving"
+        />
+        <p-button
+          type="button"
+          label="Скасувати"
+          icon="pi pi-times"
+          severity="secondary"
+          [outlined]="true"
+          [disabled]="!hasUnsavedChanges() || saving"
+          (onClick)="cancel()"
+        />
       </div>
     </form>
   </p-card>

@@ -1,4 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -8,6 +9,14 @@ import { MessageModule } from 'primeng/message';
 
 import { ProfileService } from '../../core/profile/profile.service';
 import { SupabaseService } from '../../core/supabase/supabase.service';
+
+/** Raw form fields; equality with the saved snapshot uses trimmed text fields. */
+type ProfileFormSnapshot = {
+  first_name: string;
+  last_name: string;
+  gender: string;
+  class_name: string;
+};
 
 @Component({
   selector: 'cu-profile',
@@ -21,6 +30,7 @@ export class ProfileComponent implements OnInit {
   private readonly supabase = inject(SupabaseService);
   private readonly profileService = inject(ProfileService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly user = this.supabase.user;
 
@@ -37,6 +47,16 @@ export class ProfileComponent implements OnInit {
     { label: 'Інше / не вказано', value: 'other' },
   ];
 
+  /** Last values persisted in the DB; used for dirty detection and Cancel. */
+  private savedSnapshot: ProfileFormSnapshot = {
+    first_name: '',
+    last_name: '',
+    gender: '',
+    class_name: '',
+  };
+
+  readonly hasUnsavedChanges = signal(false);
+
   loading = true;
   saving = false;
   errorMessage = '';
@@ -50,21 +70,30 @@ export class ProfileComponent implements OnInit {
     }
 
     const existing = await this.profileService.getByUserId(id);
-    if (existing) {
-      this.form.patchValue({
-        first_name: existing.first_name ?? '',
-        last_name: existing.last_name ?? '',
-        gender: existing.gender ?? '',
-        class_name: existing.class_name ?? '',
-      });
-    }
+    this.savedSnapshot = {
+      first_name: existing?.first_name ?? '',
+      last_name: existing?.last_name ?? '',
+      gender: existing?.gender ?? '',
+      class_name: existing?.class_name ?? '',
+    };
+    this.form.patchValue(this.savedSnapshot);
+
+    this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.syncDirtyFlag());
+    this.syncDirtyFlag();
 
     this.loading = false;
   }
 
+  cancel(): void {
+    this.form.patchValue(this.savedSnapshot);
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.syncDirtyFlag();
+  }
+
   async save(): Promise<void> {
     const id = this.supabase.user()?.id;
-    if (!id) {
+    if (!id || !this.hasUnsavedChanges()) {
       return;
     }
 
@@ -89,6 +118,36 @@ export class ProfileComponent implements OnInit {
     }
 
     await this.profileService.refreshCachedProfile(id);
+    const saved = this.form.getRawValue();
+    this.savedSnapshot = {
+      first_name: saved.first_name.trim(),
+      last_name: saved.last_name.trim(),
+      gender: saved.gender || '',
+      class_name: saved.class_name.trim(),
+    };
+    this.form.patchValue(this.savedSnapshot);
+    this.syncDirtyFlag();
     this.successMessage = 'Профіль збережено.';
+  }
+
+  private syncDirtyFlag(): void {
+    this.hasUnsavedChanges.set(!this.normalizedEqual(this.form.getRawValue(), this.savedSnapshot));
+  }
+
+  private normalizedEqual(a: ProfileFormSnapshot, b: ProfileFormSnapshot): boolean {
+    const n = (v: ProfileFormSnapshot) => ({
+      first_name: v.first_name.trim(),
+      last_name: v.last_name.trim(),
+      gender: v.gender || '',
+      class_name: v.class_name.trim(),
+    });
+    const x = n(a);
+    const y = n(b);
+    return (
+      x.first_name === y.first_name &&
+      x.last_name === y.last_name &&
+      x.gender === y.gender &&
+      x.class_name === y.class_name
+    );
   }
 }

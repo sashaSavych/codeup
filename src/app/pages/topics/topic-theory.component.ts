@@ -30,7 +30,7 @@ export class TopicTheoryComponent {
 
   readonly user = this.supabase.user;
 
-  /** `undefined` — ще завантажується; `null` — тема не знайдена; інакше рядок з БД. */
+  /** `undefined`: still loading; `null`: topic not found; otherwise the DB row. */
   readonly topicResult = toSignal(
     this.route.paramMap.pipe(
       map((p) => p.get('slug') ?? ''),

@@ -2,7 +2,7 @@
   display: block;
 }
 
-/* Markdown → HTML (обмежений набір тегів із `marked`) */
+/* Markdown → HTML (subset of tags produced by `marked`) */
 :host ::ng-deep .cu-theory {
   color: rgb(51 65 85);
   font-size: 0.9375rem;

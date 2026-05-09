@@ -1,4 +1,4 @@
-/** Row from `public.topics` (list view — без повного тексту теорії). */
+/** Row from `public.topics` (list view omits full theory body). */
 export interface TopicSummary {
   slug: string;
   sort_order: number;
@@ -6,7 +6,7 @@ export interface TopicSummary {
   summary: string;
 }
 
-/** Повна тема з теорією в Markdown (рендер у HTML на клієнті). */
+/** Full topic including Markdown theory (rendered to HTML on the client). */
 export interface TopicDetail extends TopicSummary {
   theory_md: string;
 }
