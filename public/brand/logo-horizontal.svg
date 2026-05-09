@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" role="img" aria-labelledby="logoWordTitle">
+  <title id="logoWordTitle">CodeUp JavaScript</title>
+  <defs>
+    <linearGradient id="cuGradH" x1="6" y1="6" x2="42" y2="42" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5eead4"/>
+      <stop offset="1" stop-color="#0f766e"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="48" height="48" rx="11" fill="url(#cuGradH)"/>
+  <g stroke="#ffffff" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <polyline points="18 16 12 24 18 32"/>
+    <line x1="24" y1="14" x2="22" y2="34"/>
+    <polyline points="30 16 36 24 30 32"/>
+  </g>
+  <text x="58" y="32" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="22" font-weight="700" fill="#0f172a">CodeUp</text>
+</svg>

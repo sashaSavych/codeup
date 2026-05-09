@@ -88,6 +88,7 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
+    await this.profileService.refreshCachedProfile(id);
     this.successMessage = 'Профіль збережено.';
   }
 

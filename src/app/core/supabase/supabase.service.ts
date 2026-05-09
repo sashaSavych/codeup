@@ -4,6 +4,19 @@ import type { Session } from '@supabase/supabase-js';
 
 import { environment } from '../../../environments/environment';
 
+/**
+ * Skip Navigator LockManager (cross-tab locks). Uses in-process execution only.
+ * Avoids NavigatorLockAcquireTimeoutError with Zone.js / concurrent guards / HMR;
+ * two tabs can race on refresh — fine for a typical single-tab learning app.
+ */
+async function authLockInProcess<R>(
+  _name: string,
+  _acquireTimeout: number,
+  fn: () => Promise<R>,
+): Promise<R> {
+  return fn();
+}
+
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
   readonly client: SupabaseClient;
@@ -12,24 +25,37 @@ export class SupabaseService {
   readonly session = this.sessionSignal.asReadonly();
   readonly user = computed(() => this.sessionSignal()?.user ?? null);
 
+  /**
+   * Resolves after the first auth callback (includes INITIAL_SESSION).
+   * Use in route guards instead of `getSession()` to avoid extra lock contention.
+   */
+  readonly initialSessionPromise: Promise<void>;
+
+  private resolveInitialSession!: () => void;
+
   constructor() {
+    this.initialSessionPromise = new Promise<void>((resolve) => {
+      this.resolveInitialSession = resolve;
+    });
+
     this.client = createClient(environment.supabaseUrl, environment.supabasePublishableKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
+        lock: authLockInProcess,
+        lockAcquireTimeout: 20000,
       },
     });
 
-    void this.hydrateSession();
+    let initialEmitted = false;
     this.client.auth.onAuthStateChange((_event, session) => {
       this.sessionSignal.set(session);
+      if (!initialEmitted) {
+        initialEmitted = true;
+        this.resolveInitialSession();
+      }
     });
-  }
-
-  private async hydrateSession(): Promise<void> {
-    const { data } = await this.client.auth.getSession();
-    this.sessionSignal.set(data.session);
   }
 
   async signOut(): Promise<void> {

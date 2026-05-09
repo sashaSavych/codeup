@@ -1,11 +1,25 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
-import { SupabaseService } from '../supabase/supabase.service';
 import type { UserProfile } from '../../models/user-profile.model';
+import { SupabaseService } from '../supabase/supabase.service';
 
 @Injectable({ providedIn: 'root' })
 export class ProfileService {
+  /** Cached row for header / quick UI; refreshed on login and after profile save. */
+  private readonly cachedProfileSignal = signal<UserProfile | null>(null);
+  readonly cachedProfile = this.cachedProfileSignal.asReadonly();
+
   constructor(private readonly supabase: SupabaseService) {}
+
+  clearCachedProfile(): void {
+    this.cachedProfileSignal.set(null);
+  }
+
+  /** Loads profile from DB into {@link cachedProfile}. */
+  async refreshCachedProfile(userId: string): Promise<void> {
+    const profile = await this.getByUserId(userId);
+    this.cachedProfileSignal.set(profile);
+  }
 
   async getByUserId(userId: string): Promise<UserProfile | null> {
     const { data, error } = await this.supabase.client

@@ -8,11 +8,8 @@ export const guestGuard: CanActivateFn = async () => {
   const supabase = inject(SupabaseService);
   const router = inject(Router);
 
-  const {
-    data: { session },
-  } = await supabase.client.auth.getSession();
-
-  if (session) {
+  await supabase.initialSessionPromise;
+  if (supabase.session()) {
     return router.createUrlTree(['/profile']);
   }
 

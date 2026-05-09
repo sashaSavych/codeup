@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 
+import { ProfileService } from './core/profile/profile.service';
 import { SupabaseService } from './core/supabase/supabase.service';
 import { AppComponent } from './app.component';
 
@@ -15,6 +16,14 @@ describe('AppComponent', () => {
           useValue: {
             user: signal(null),
             signOut: jasmine.createSpy('signOut').and.resolveTo(),
+          },
+        },
+        {
+          provide: ProfileService,
+          useValue: {
+            cachedProfile: signal(null),
+            clearCachedProfile: jasmine.createSpy('clearCachedProfile'),
+            refreshCachedProfile: jasmine.createSpy('refreshCachedProfile').and.resolveTo(),
           },
         },
       ],
