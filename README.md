@@ -7,6 +7,19 @@
 - план застосунку, екрани, ролі, етапи: [`../app/app.txt`](../app/app.txt);
 - стек технологій і хостинг: [`../app/stack.txt`](../app/stack.txt).
 
+### Реалізований базовий стек (це репозиторій)
+
+| Компонент | Примітка |
+|-----------|-----------|
+| Angular **21**, TypeScript | SPA, routing, префікс селекторів `cu-`, standalone-компоненти |
+| PrimeNG **21.1.6** (community, MIT) | Не використовувати збірки **`-lts`**. Тема Aura (`@primeuix/themes`), `provideAnimationsAsync`; `@angular/cdk` узгоджено з Angular 21 |
+| Tailwind CSS 3 | `preflight` вимкнено, щоб не конфліктувати зі стилями PrimeNG |
+| `@angular/localize` | Підготовка до української локалізації |
+| `monaco-editor`, `@supabase/supabase-js` | Залежності додано; підключення редактора й бекенду — наступні етапи |
+| Jasmine / Karma | Як у шаблоні Angular CLI |
+
+**Запуск локально:** з каталогу `codeup/` виконати `npm install`, потім `npm start`. Збірка: `npm run build`; тести: `npm test`. Конфігурація Supabase (не комітити секрети): скопіювати `src/environments/environment.development.example.ts` у `environment.development.ts` і заповнити URL та anon key.
+
 ---
 
 ## Призначення та контекст
@@ -195,5 +208,5 @@ Supabase — окремо; на хостинг потрапляють лише �
 
 ## Агентам ШІ
 
-- Інструкції для асистентів: [`AGENTS.md`](./AGENTS.md).
+- Інструкції для асистентів (англійською): [`AGENTS.md`](./AGENTS.md).
 - Правила Cursor (застосовуються при відкритті workspace з коренем каталогу **`d/`**, де лежать **`codeup/`** та **`app/`**): [`../.cursor/rules/`](../.cursor/rules/) — `codeup.mdc`, `codeup-angular.mdc`.
