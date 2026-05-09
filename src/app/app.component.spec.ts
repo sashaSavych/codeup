@@ -1,10 +1,23 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+
+import { SupabaseService } from './core/supabase/supabase.service';
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AppComponent],
+      imports: [AppComponent, RouterTestingModule],
+      providers: [
+        {
+          provide: SupabaseService,
+          useValue: {
+            user: signal(null),
+            signOut: jasmine.createSpy('signOut').and.resolveTo(),
+          },
+        },
+      ],
     }).compileComponents();
   });
 

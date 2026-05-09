@@ -1,29 +1,26 @@
 <div class="cu-shell flex min-h-screen flex-col bg-slate-50">
   <header class="border-b border-slate-200 bg-white shadow-sm">
-    <div class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
-      <div class="flex flex-col gap-0.5">
+    <div class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-4 py-3">
+      <a routerLink="/" class="flex flex-col gap-0.5 no-underline hover:opacity-90">
         <span class="text-lg font-semibold text-slate-900">{{ title }}</span>
         <span class="text-sm text-slate-600">Навчальний модуль з JavaScript</span>
-      </div>
-      <p-button label="Увійти" severity="secondary" [outlined]="true" />
+      </a>
+      <nav class="flex flex-wrap items-center gap-2">
+        @if (user(); as u) {
+          <span class="mr-1 hidden max-w-[200px] truncate text-sm text-slate-600 sm:inline" [title]="u.email ?? ''">{{
+            u.email
+          }}</span>
+          <p-button label="Профіль" icon="pi pi-user" routerLink="/profile" [outlined]="true" />
+          <p-button label="Вийти" icon="pi pi-sign-out" severity="secondary" (onClick)="logout()" />
+        } @else {
+          <p-button label="Увійти" routerLink="/login" [outlined]="true" />
+          <p-button label="Реєстрація" icon="pi pi-user-plus" routerLink="/signup" />
+        }
+      </nav>
     </div>
   </header>
 
   <main class="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-4 py-8">
-    <p-card header="Старт розробки">
-      <p class="text-slate-700">
-        Базовий проєкт: Angular, PrimeNG (тема Aura), Tailwind CSS, Angular i18n (localize),
-        monaco-editor та клієнт Supabase підключені як залежності. Далі — маршрути модуля,
-        автентифікація та практикум.
-      </p>
-      <div class="mt-4 flex flex-wrap gap-2">
-        <p-button label="Тест PrimeNG" icon="pi pi-check" />
-        <span class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-sm text-emerald-800">
-          Tailwind підключено
-        </span>
-      </div>
-    </p-card>
-
-    <router-outlet></router-outlet>
+    <router-outlet />
   </main>
 </div>

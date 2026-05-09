@@ -1,0 +1,46 @@
+:host {
+  display: block;
+}
+
+.cu-email-strip {
+  border: 1px solid rgb(226 232 240);
+  border-radius: 0.75rem;
+  background: rgb(248 250 252);
+  padding: 0.75rem 1rem;
+  color: rgb(15 23 42);
+}
+
+.cu-email-strip .cu-email-label {
+  font-weight: 600;
+  color: rgb(51 65 85);
+}
+
+.cu-email-strip .cu-email-value {
+  color: rgb(15 23 42);
+}
+
+.cu-field-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgb(51 65 85);
+}
+
+.cu-select {
+  border-radius: 0.375rem;
+  border: 1px solid rgb(203 213 225);
+  background-color: #ffffff;
+  color: rgb(15 23 42);
+  padding: 0.5rem 0.75rem;
+  line-height: 1.5;
+}
+
+.cu-select:focus {
+  outline: none;
+  border-color: rgb(13 148 136);
+  box-shadow: 0 0 0 2px rgb(13 148 136 / 0.25);
+}
+
+.cu-select option {
+  background-color: #ffffff;
+  color: rgb(15 23 42);
+}

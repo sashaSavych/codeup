@@ -4,6 +4,55 @@
 
 @import 'primeicons/primeicons.css';
 
+/* Light surfaces inside the app shell — PrimeNG Aura may otherwise render dark cards. */
+.cu-shell main {
+  color-scheme: light;
+}
+
+.cu-shell main .p-card {
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid rgb(226 232 240);
+  background-color: #ffffff !important;
+  color: rgb(15 23 42);
+  box-shadow:
+    0 4px 6px -1px rgb(15 23 42 / 0.06),
+    0 2px 4px -2px rgb(15 23 42 / 0.05);
+}
+
+.cu-shell main .p-card .p-card-header {
+  margin: 0;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgb(226 232 240);
+  background: linear-gradient(180deg, rgb(248 250 252) 0%, rgb(241 245 249) 100%);
+}
+
+.cu-shell main .p-card .p-card-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: rgb(15 23 42);
+}
+
+.cu-shell main .p-card .p-card-body {
+  padding: 1.25rem;
+  color: rgb(51 65 85);
+}
+
+.cu-shell main .p-inputtext,
+.cu-shell main .p-password .p-inputtext,
+.cu-shell main .p-password-input {
+  background-color: #ffffff !important;
+  color: rgb(15 23 42) !important;
+  border-color: rgb(203 213 225) !important;
+}
+
+.cu-shell main .p-inputtext:enabled:focus,
+.cu-shell main .p-password .p-inputtext:enabled:focus {
+  border-color: rgb(13 148 136) !important;
+  box-shadow: 0 0 0 1px rgb(13 148 136 / 0.35);
+}
+
 html,
 body {
   height: 100%;

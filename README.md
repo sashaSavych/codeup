@@ -18,7 +18,9 @@
 | `monaco-editor`, `@supabase/supabase-js` | Залежності додано; підключення редактора й бекенду — наступні етапи |
 | Jasmine / Karma | Як у шаблоні Angular CLI |
 
-**Запуск локально:** з каталогу `codeup/` виконати `npm install`, потім `npm start`. Збірка: `npm run build`; тести: `npm test`. Конфігурація Supabase (не комітити секрети): скопіювати `src/environments/environment.development.example.ts` у `environment.development.ts` і заповнити URL та anon key.
+**Запуск локально:** з каталогу `codeup/` виконати `npm install`, потім `npm start`. Збірка: `npm run build`; тести: `npm test`. Конфігурація Supabase (не комітити ключі): скопіювати `src/environments/environment.development.example.ts` у `environment.development.ts` і заповнити **Project URL** та **Publishable** ключ (`sb_publishable_...`) з вкладки **Publishable and secret API keys** у Dashboard → Settings → API Keys (JWT **anon** з вкладки Legacy ще підтримується під час міграції). Для збереження профілю учня виконайте SQL з **`supabase/profiles.sql`** у Supabase → SQL Editor (таблиця `profiles` і RLS).
+
+**Автентифікація:** маршрути `/signup`, `/login`, `/profile`. Після реєстрації, якщо сесія активна одразу (без обов’язкового підтвердження email), виконується перехід на `/profile`.
 
 ---
 
