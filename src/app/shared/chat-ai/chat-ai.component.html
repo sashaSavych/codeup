@@ -1,0 +1,53 @@
+@if (user()) {
+  <p-drawer
+    [visible]="chatAi.visible()"
+    (visibleChange)="chatAi.visible.set($event)"
+    position="right"
+    [modal]="true"
+    [dismissible]="true"
+    [blockScroll]="true"
+    header="CodeUp AI помічник"
+    styleClass="cu-chat-drawer"
+  >
+    <div class="cu-chat-inner">
+      <div #messageScroll class="cu-chat-scroll" role="log" aria-live="polite" aria-relevant="additions">
+        @for (m of messages(); track m.at + '-' + m.role + '-' + $index) {
+          <div class="cu-chat-row" [class.cu-chat-row--user]="m.role === 'user'">
+            <div
+              class="cu-chat-bubble"
+              [class.cu-chat-bubble--user]="m.role === 'user'"
+              [class.cu-chat-bubble--assistant]="m.role === 'assistant'"
+            >
+              {{ m.content }}
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="cu-chat-composer">
+        <label class="sr-only" for="cu-chat-input">Повідомлення</label>
+        <textarea
+          id="cu-chat-input"
+          class="cu-chat-textarea"
+          rows="2"
+          [value]="draft()"
+          (input)="updateDraft($any($event.target).value)"
+          (keydown.enter)="onComposerEnter($event)"
+          placeholder="Опиши питання…"
+          [disabled]="sending()"
+          autocomplete="off"
+        ></textarea>
+        <p-button
+          type="button"
+          label="Надіслати"
+          icon="pi pi-send"
+          iconPos="right"
+          styleClass="cu-chat-send-btn"
+          [loading]="sending()"
+          [disabled]="!draft().trim() || sending()"
+          (onClick)="send()"
+        />
+      </div>
+    </div>
+  </p-drawer>
+}

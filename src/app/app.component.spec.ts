@@ -15,6 +15,7 @@ describe('AppComponent', () => {
           provide: SupabaseService,
           useValue: {
             user: signal(null),
+            session: signal(null),
             signOut: jasmine.createSpy('signOut').and.resolveTo(),
           },
         },

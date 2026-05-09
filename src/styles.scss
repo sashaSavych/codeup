@@ -94,3 +94,45 @@ body {
   margin: 0;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Ubuntu, Cantarell, sans-serif;
 }
+
+/* AI chat drawer: light panel + softer mask (Prime Aura may use dark drawer). */
+.p-drawer.cu-chat-drawer {
+  width: min(100vw, 26rem) !important;
+  max-width: 100vw;
+  background: rgb(241 245 249);
+  color: rgb(15 23 42);
+  border-inline-start: 1px solid rgb(226 232 240);
+  box-shadow: -16px 0 48px -16px rgb(15 23 42 / 0.2);
+}
+
+.p-drawer.cu-chat-drawer .p-drawer-header {
+  flex-shrink: 0;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  border-bottom: 1px solid rgb(226 232 240);
+  color: rgb(15 23 42);
+}
+
+.p-drawer.cu-chat-drawer .p-drawer-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.p-drawer.cu-chat-drawer .p-drawer-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0.75rem 1rem 1rem;
+  background: transparent;
+}
+
+.p-drawer.cu-chat-drawer .p-drawer-close-button {
+  color: rgb(100 116 139);
+}
+
+.p-drawer.cu-chat-drawer .p-drawer-close-button:hover {
+  color: rgb(15 23 42);
+  background: rgb(241 245 249);
+}

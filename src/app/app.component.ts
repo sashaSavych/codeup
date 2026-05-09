@@ -2,12 +2,14 @@ import { Component, effect, inject } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 
+import { ChatAiService } from './core/chat-ai/chat-ai.service';
 import { ProfileService } from './core/profile/profile.service';
 import { SupabaseService } from './core/supabase/supabase.service';
+import { ChatAiComponent } from './shared/chat-ai/chat-ai.component';
 
 @Component({
   selector: 'cu-root',
-  imports: [RouterOutlet, RouterLink, ButtonModule],
+  imports: [RouterOutlet, RouterLink, ButtonModule, ChatAiComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
@@ -16,6 +18,7 @@ export class AppComponent {
 
   private readonly supabase = inject(SupabaseService);
   readonly profileService = inject(ProfileService);
+  readonly chatAi = inject(ChatAiService);
   private readonly router = inject(Router);
 
   readonly user = this.supabase.user;
