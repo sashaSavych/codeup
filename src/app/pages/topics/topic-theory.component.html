@@ -1,0 +1,23 @@
+@if (topicResult() === undefined) {
+  <p class="text-slate-600">Завантаження…</p>
+} @else if (topicResult() === null) {
+  <p-card header="Тему не знайдено">
+    <p class="text-slate-700">Перевірте посилання або поверніться до списку тем.</p>
+    <p-button class="mt-4" label="До списку тем" icon="pi pi-list" routerLink="/topics" [outlined]="true" />
+  </p-card>
+} @else {
+  <div class="cu-topic-theory flex flex-col gap-4">
+    <div class="flex flex-wrap items-center gap-2">
+      <p-button label="Усі теми" icon="pi pi-arrow-left" routerLink="/topics" [outlined]="true" />
+    </div>
+
+    <p-card [header]="topicResult()!.title">
+      <p class="mb-4 text-sm text-slate-600">Урок {{ topicResult()!.sort_order }} · теорія</p>
+      @if (theoryHtml(); as html) {
+        <article class="cu-theory" [innerHTML]="html"></article>
+      } @else {
+        <p class="text-slate-600">Теорія для цієї теми ще не додана.</p>
+      }
+    </p-card>
+  </div>
+}

@@ -1,0 +1,58 @@
+:host {
+  display: block;
+}
+
+/* Markdown → HTML (обмежений набір тегів із `marked`) */
+:host ::ng-deep .cu-theory {
+  color: rgb(51 65 85);
+  font-size: 0.9375rem;
+  line-height: 1.65;
+}
+
+:host ::ng-deep .cu-theory h2 {
+  margin: 1.25rem 0 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: rgb(15 23 42);
+}
+
+:host ::ng-deep .cu-theory h2:first-child {
+  margin-top: 0;
+}
+
+:host ::ng-deep .cu-theory p {
+  margin: 0 0 0.75rem;
+}
+
+:host ::ng-deep .cu-theory ul {
+  margin: 0 0 0.75rem;
+  padding-left: 1.25rem;
+  list-style-type: disc;
+}
+
+:host ::ng-deep .cu-theory li {
+  margin-bottom: 0.25rem;
+}
+
+:host ::ng-deep .cu-theory pre {
+  margin: 0 0 0.75rem;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(226 232 240);
+  background: rgb(248 250 252);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+:host ::ng-deep .cu-theory code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+:host ::ng-deep .cu-theory p code,
+:host ::ng-deep .cu-theory li code {
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+  background: rgb(241 245 249);
+  font-size: 0.8125rem;
+}

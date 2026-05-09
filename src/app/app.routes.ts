@@ -9,6 +9,14 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/home/home.component').then((m) => m.HomeComponent),
   },
   {
+    path: 'topics',
+    loadComponent: () => import('./pages/topics/topics.component').then((m) => m.TopicsComponent),
+  },
+  {
+    path: 'topics/:slug',
+    loadComponent: () => import('./pages/topics/topic-theory.component').then((m) => m.TopicTheoryComponent),
+  },
+  {
     path: 'signup',
     canActivate: [guestGuard],
     loadComponent: () => import('./pages/sign-up/sign-up.component').then((m) => m.SignUpComponent),
