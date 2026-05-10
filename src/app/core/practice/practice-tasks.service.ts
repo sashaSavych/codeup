@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { SupabaseService } from '../supabase/supabase.service';
 
 import type { CodeTask } from './code-task.model';
+import type { PracticeTaskSummaryRow } from './practice-progress';
 import { verifyAsyncGiveOk, verifyWithHarness } from './task-verify';
 
 interface PracticeTaskRow {
@@ -19,6 +20,22 @@ interface PracticeTaskRow {
 @Injectable({ providedIn: 'root' })
 export class PracticeTasksService {
   constructor(private readonly supabase: SupabaseService) {}
+
+  /** Lightweight list for profile progress (no harness bodies). */
+  async listTaskSummaries(): Promise<PracticeTaskSummaryRow[]> {
+    const { data, error } = await this.supabase.client
+      .from('practice_tasks')
+      .select('id, topic_slug, sort_order, title')
+      .order('topic_slug', { ascending: true })
+      .order('sort_order', { ascending: true });
+
+    if (error) {
+      console.error(error);
+      throw new Error(error.message);
+    }
+
+    return (data as PracticeTaskSummaryRow[] | null) ?? [];
+  }
 
   async getTasksForTopic(topicSlug: string): Promise<CodeTask[]> {
     const { data, error } = await this.supabase.client

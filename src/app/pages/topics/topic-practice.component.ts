@@ -10,6 +10,7 @@ import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
 
 import type { CodeTask } from '../../core/practice/code-task.model';
+import { isPracticeTaskPassed, setPracticeTaskPassed } from '../../core/practice/practice-storage';
 import { PracticeTasksService } from '../../core/practice/practice-tasks.service';
 import { SupabaseService } from '../../core/supabase/supabase.service';
 import { TopicsService } from '../../core/topics/topics.service';
@@ -72,9 +73,9 @@ export class TopicPracticeComponent {
     effect(() => {
       const list = this.tasksForTopic();
       const id = this.selectedTaskId();
-    if (list === null) {
-      return;
-    }
+      if (list === null) {
+        return;
+      }
       if (!list.length) {
         this.selectedTaskId.set(null);
         return;
@@ -101,12 +102,12 @@ export class TopicPracticeComponent {
 
   isTaskPassed(taskId: string): boolean {
     const uid = this.supabase.user()?.id ?? 'guest';
-    return globalThis.localStorage?.getItem(`codeup_practice_${uid}_${taskId}`) === '1';
+    return isPracticeTaskPassed(uid, taskId);
   }
 
   private markTaskPassed(taskId: string): void {
     const uid = this.supabase.user()?.id ?? 'guest';
-    globalThis.localStorage?.setItem(`codeup_practice_${uid}_${taskId}`, '1');
+    setPracticeTaskPassed(uid, taskId);
   }
 
   async runVerify(): Promise<void> {
