@@ -1,4 +1,5 @@
 -- Run in Supabase Dashboard → SQL Editor (after profiles.sql if needed).
+-- Then run practice_tasks.sql (practice exercises; requires rows in topics).
 -- Public catalogue: anyone (anon + authenticated) can read topics and theory.
 
 create table if not exists public.topics (

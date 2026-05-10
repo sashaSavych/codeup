@@ -40,20 +40,23 @@ export class TopicPracticeComponent {
     ),
   );
 
-  readonly tasksForTopic = computed(() => {
-    const t = this.topicResult();
-    if (!t) {
-      return [];
-    }
-    return this.practiceTasks.getTasksForTopic(t.slug);
-  });
+  /** `null` while waiting for the first emit for this route; then possibly empty. */
+  readonly tasksForTopic = toSignal<CodeTask[] | null>(
+    this.route.paramMap.pipe(
+      map((p) => p.get('slug') ?? ''),
+      switchMap((slug) =>
+        slug ? from(this.practiceTasks.getTasksForTopic(slug)) : from(Promise.resolve([] as CodeTask[])),
+      ),
+    ),
+    { initialValue: null },
+  );
 
   readonly selectedTaskId = signal<string | null>(null);
 
   readonly selectedTask = computed(() => {
     const list = this.tasksForTopic();
     const id = this.selectedTaskId();
-    if (!list.length) {
+    if (list === null || !list.length) {
       return null;
     }
     if (!id) {
@@ -69,6 +72,9 @@ export class TopicPracticeComponent {
     effect(() => {
       const list = this.tasksForTopic();
       const id = this.selectedTaskId();
+    if (list === null) {
+      return;
+    }
       if (!list.length) {
         this.selectedTaskId.set(null);
         return;

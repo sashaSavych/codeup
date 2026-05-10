@@ -12,7 +12,9 @@
       <p-button label="Усі теми" icon="pi pi-list" routerLink="/topics" [outlined]="true" />
     </div>
 
-    @if (tasksForTopic().length === 0) {
+    @if (tasksForTopic() === null) {
+      <p class="text-slate-600">Завантаження вправ…</p>
+    } @else if (tasksForTopic()!.length === 0) {
       <p-card [header]="'Практикум: ' + topicResult()!.title">
         <p class="text-slate-700">
           Для цієї теми ще немає автоматичних вправ у каталозі. Переглянь теорію й повернись пізніше або обери іншу тему зі списку.

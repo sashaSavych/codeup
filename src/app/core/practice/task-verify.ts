@@ -81,3 +81,46 @@ export function verifyWithHarness(userCode: string, harness: string): Verificati
     };
   }
 }
+
+/** Async task: `giveOk()` must return a Promise resolving to `"ok"`. */
+export async function verifyAsyncGiveOk(code: string): Promise<VerificationResult> {
+  const syntax = checkUserSyntax(code);
+  if (syntax) {
+    return syntax;
+  }
+  try {
+    const factory = new Function(`${code}\nreturn giveOk;`);
+    const fn = factory();
+    if (typeof fn !== 'function') {
+      return { ok: false, message: 'Потрібна функція giveOk', markerLine: 1, markerColumn: 1 };
+    }
+    const p = fn();
+    if (!(p instanceof Promise)) {
+      return {
+        ok: false,
+        message: 'giveOk() має повертати Promise',
+        markerLine: 1,
+        markerColumn: 1,
+      };
+    }
+    const v = await p;
+    if (v !== 'ok') {
+      return {
+        ok: false,
+        message: `Promise має резолвитись у рядок "ok", отримано: ${JSON.stringify(v)}`,
+        markerLine: 1,
+        markerColumn: 1,
+      };
+    }
+    return { ok: true };
+  } catch (e) {
+    const err = e as Error;
+    const loc = mapStackToUserEditor(code, locationFromStack(err.stack));
+    return {
+      ok: false,
+      message: err.message || 'Помилка перевірки.',
+      markerLine: loc?.line ?? 1,
+      markerColumn: loc?.column ?? 1,
+    };
+  }
+}
