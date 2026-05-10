@@ -1,3 +1,33 @@
 :host {
   display: block;
 }
+
+.cu-task-pill {
+  border-color: rgb(226 232 240);
+  background: #fff;
+  color: rgb(51 65 85);
+}
+
+.cu-task-pill:hover {
+  border-color: rgb(148 163 184);
+  background: rgb(248 250 252);
+}
+
+.cu-task-pill--active {
+  border-color: rgb(13 148 136);
+  background: rgb(240 253 250);
+  box-shadow: 0 0 0 1px rgb(13 148 136 / 0.25);
+}
+
+.cu-task-desc :deep(p) {
+  margin: 0 0 0.5rem;
+}
+
+.cu-task-desc :deep(p:last-child) {
+  margin-bottom: 0;
+}
+
+.cu-task-desc :deep(strong) {
+  font-weight: 600;
+  color: rgb(15 23 42);
+}

@@ -1,0 +1,11 @@
+:host {
+  display: block;
+}
+
+.cu-code-editor-host {
+  min-height: 280px;
+  height: min(42vh, 420px);
+  border: 1px solid rgb(203 213 225);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}

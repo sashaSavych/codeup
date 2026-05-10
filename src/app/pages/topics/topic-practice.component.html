@@ -12,11 +12,58 @@
       <p-button label="Усі теми" icon="pi pi-list" routerLink="/topics" [outlined]="true" />
     </div>
 
-    <p-card [header]="'Практикум: ' + topicResult()!.title">
-      <p class="text-slate-700">
-        Тут з’являться інтерактивні вправи, редактор коду та збереження вашого прогресу по темі. Розділ у розробці — після
-        додавання завдань ви зможете виконувати їх у браузері, а система фіксуватиме результати для облікового запису.
-      </p>
-    </p-card>
+    @if (tasksForTopic().length === 0) {
+      <p-card [header]="'Практикум: ' + topicResult()!.title">
+        <p class="text-slate-700">
+          Для цієї теми ще немає автоматичних вправ у каталозі. Переглянь теорію й повернись пізніше або обери іншу тему зі списку.
+        </p>
+      </p-card>
+    } @else {
+      <div class="cu-practice-layout flex flex-col gap-4 lg:flex-row lg:items-start">
+        <aside class="cu-practice-task-list flex w-full shrink-0 flex-col gap-2 lg:max-w-xs">
+          <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Завдання</p>
+          @for (task of tasksForTopic(); track task.id) {
+            <button
+              type="button"
+              class="cu-task-pill flex w-full items-center justify-between gap-2 rounded-xl border px-3 py-2.5 text-left text-sm transition-colors"
+              [class.cu-task-pill--active]="selectedTask()?.id === task.id"
+              (click)="selectTask(task)"
+            >
+              <span class="font-medium text-slate-800">{{ task.order }}. {{ task.title }}</span>
+              @if (isTaskPassed(task.id)) {
+                <span class="pi pi-check-circle shrink-0 text-teal-600" aria-hidden="true"></span>
+              }
+            </button>
+          }
+        </aside>
+
+        <section class="min-w-0 flex-1 space-y-4">
+          @if (selectedTask(); as task) {
+            <p-card [header]="task.title">
+              <div class="cu-task-desc mb-4 text-slate-700" [innerHTML]="taskDescriptionHtml(task)"></div>
+
+              <cu-code-editor [initialCode]="task.starterCode" />
+
+              <div class="mt-4 flex flex-wrap items-center gap-2">
+                <p-button
+                  type="button"
+                  label="Перевірити"
+                  icon="pi pi-check"
+                  [loading]="verifying()"
+                  [disabled]="!editorRef()?.editorReady()"
+                  (onClick)="runVerify()"
+                />
+              </div>
+
+              @if (verifyState(); as vs) {
+                <p-message class="mt-4 block" [severity]="vs.ok ? 'success' : 'error'" [closable]="false">
+                  <span class="cu-verify-msg block whitespace-pre-wrap break-words">{{ vs.text }}</span>
+                </p-message>
+              }
+            </p-card>
+          }
+        </section>
+      </div>
+    }
   </div>
 }
