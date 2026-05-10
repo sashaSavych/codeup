@@ -6,6 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
+import { TabsModule } from 'primeng/tabs';
 
 import { computeOverallPracticeProgress, type OverallPracticeProgress } from '../../core/practice/practice-progress';
 import { PracticeTasksService } from '../../core/practice/practice-tasks.service';
@@ -24,7 +25,7 @@ type ProfileFormSnapshot = {
 @Component({
   selector: 'cu-profile',
   standalone: true,
-  imports: [ReactiveFormsModule, ButtonModule, CardModule, InputTextModule, MessageModule],
+  imports: [ReactiveFormsModule, ButtonModule, CardModule, InputTextModule, MessageModule, TabsModule],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
 })
@@ -65,6 +66,9 @@ export class ProfileComponent implements OnInit {
   readonly practiceProgress = signal<OverallPracticeProgress | null>(null);
   readonly practiceProgressLoading = signal(true);
   readonly practiceProgressError = signal('');
+
+  /** Active tab key for `p-tabs` (Прогрес is first in the tab list). */
+  activeTab: 'profile' | 'progress' = 'progress';
 
   loading = true;
   saving = false;

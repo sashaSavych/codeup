@@ -136,3 +136,85 @@ body {
   color: rgb(15 23 42);
   background: rgb(241 245 249);
 }
+
+/*
+ * Profile page tabs: Aura follows OS dark mode and injects styles after components,
+ * so overrides live here with !important (see cu-profile-tabs on p-tabs host).
+ */
+.cu-shell main cu-profile p-tabs.cu-profile-tabs.p-tabs {
+  overflow-x: hidden;
+  background-color: #fff !important;
+  border-radius: 0.75rem;
+}
+
+.cu-shell main cu-profile p-tabs.cu-profile-tabs .p-tablist {
+  background-color: rgb(248 250 252) !important;
+  border: 1px solid rgb(226 232 240);
+  border-radius: 0.75rem 0.75rem 0 0;
+  padding: 0.35rem 0.5rem 0;
+}
+
+.cu-shell main cu-profile p-tabs.cu-profile-tabs .p-tablist-content,
+.cu-shell main cu-profile p-tabs.cu-profile-tabs .p-tablist-viewport,
+.cu-shell main cu-profile p-tabs.cu-profile-tabs .p-tablist-tab-list {
+  background-color: transparent !important;
+}
+
+.cu-shell main cu-profile p-tabs.cu-profile-tabs .p-tablist-nav-button {
+  background-color: rgb(248 250 252) !important;
+  color: rgb(71 85 105) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.cu-shell main cu-profile p-tabs.cu-profile-tabs .p-tab {
+  color: rgb(100 116 139) !important;
+  background: transparent !important;
+  border: none !important;
+  font-weight: 500;
+}
+
+.cu-shell main cu-profile p-tabs.cu-profile-tabs .p-tab:not(.p-disabled):hover {
+  color: rgb(51 65 85) !important;
+  background: rgb(241 245 249) !important;
+}
+
+.cu-shell main cu-profile p-tabs.cu-profile-tabs .p-tab.p-tab-active {
+  color: rgb(13 148 136) !important;
+  background: transparent !important;
+}
+
+.cu-shell main cu-profile p-tabs.cu-profile-tabs .p-tablist-active-bar {
+  background-color: rgb(13 148 136) !important;
+}
+
+.cu-shell main cu-profile p-tabs.cu-profile-tabs .p-tabpanels {
+  background-color: #fff !important;
+  border: 1px solid rgb(226 232 240);
+  border-top: none;
+  border-radius: 0 0 0.75rem 0.75rem;
+  padding: 1rem;
+}
+
+.cu-shell main cu-profile p-tabs.cu-profile-tabs .p-tabs-panel {
+  padding: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .cu-shell main cu-profile p-tabs.cu-profile-tabs.p-tabs {
+    background-color: #fff !important;
+  }
+
+  .cu-shell main cu-profile p-tabs.cu-profile-tabs .p-tablist,
+  .cu-shell main cu-profile p-tabs.cu-profile-tabs .p-tablist-nav-button {
+    background-color: rgb(248 250 252) !important;
+  }
+
+  .cu-shell main cu-profile p-tabs.cu-profile-tabs .p-tab {
+    color: rgb(100 116 139) !important;
+  }
+
+  .cu-shell main cu-profile p-tabs.cu-profile-tabs .p-tabpanels {
+    background-color: #fff !important;
+  }
+}

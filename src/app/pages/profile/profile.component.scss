@@ -2,6 +2,13 @@
   display: block;
 }
 
+.cu-profile-progress-scroll {
+  max-height: min(68vh, calc(100dvh - 13rem));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 0.25rem;
+}
+
 .cu-email-strip {
   border: 1px solid rgb(226 232 240);
   border-radius: 0.75rem;
