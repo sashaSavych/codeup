@@ -1,11 +1,18 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
+
+import { SupabaseService } from '../../core/supabase/supabase.service';
 
 @Component({
   selector: 'cu-home',
   standalone: true,
-  imports: [ButtonModule, CardModule],
+  imports: [RouterLink, ButtonModule],
   templateUrl: './home.component.html',
+  styleUrl: './home.component.scss',
 })
-export class HomeComponent {}
+export class HomeComponent {
+  private readonly supabase = inject(SupabaseService);
+
+  readonly user = this.supabase.user;
+}

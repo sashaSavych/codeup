@@ -1,5 +1,42 @@
-<p-card header="Тут буде опис модуля">
-  <p class="text-slate-700">
-    Тренування - шлях до успіху!
-  </p>
-</p-card>
+<div class="cu-home mx-auto max-w-3xl space-y-10">
+  <blockquote class="cu-home-quote m-0 border-l-4 border-teal-600 bg-teal-50/60 px-5 py-4 text-slate-800">
+    <p class="text-base font-medium leading-relaxed italic">
+      Програмування не вимагає «геніальності» — воно вимагає посидючості й готовності спробувати ще раз після чергової помилки. Кожен рядок коду, який ти зрозумів і дописав сам, — уже маленька перемога.
+    </p>
+    <p class="mt-3 text-sm text-slate-600">Можеш почати з першої теми сьогодні — цього достатньо для хорошого старту.</p>
+  </blockquote>
+
+  <section class="cu-home-hero rounded-2xl border border-teal-200/80 bg-gradient-to-br from-teal-50 via-white to-slate-50 px-6 py-10 shadow-sm sm:px-8">
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-teal-700">CodeUp</p>
+    <h1 class="mb-4 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+      Вивчай JavaScript маленькими кроками
+    </h1>
+    <p class="max-w-2xl text-lg leading-relaxed text-slate-700">
+      Короткі теоретичні матеріали й автоматичні вправи з перевіркою коду в браузері — без зайвих складнощів на старті.
+    </p>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <p-button label="Перейти до тем" icon="pi pi-list" routerLink="/topics" />
+      @if (user(); as u) {
+        <p-button
+          label="Мій профіль"
+          icon="pi pi-user"
+          routerLink="/profile"
+          [outlined]="true"
+        />
+      } @else {
+        <p-button label="Увійти" icon="pi pi-sign-in" routerLink="/login" [outlined]="true" />
+        <p-button label="Реєстрація" icon="pi pi-user-plus" routerLink="/signup" severity="secondary" [outlined]="true" />
+      }
+    </div>
+  </section>
+
+  <section class="space-y-4">
+    <h2 class="text-lg font-semibold text-slate-900">Що таке CodeUp</h2>
+    <p class="leading-relaxed text-slate-700">
+      Це навчальний модуль для школярів і початківців: теми від першого знайомства з JavaScript до циклів, функцій, роботи з даними та базового асинхронного коду. Ти читаєш пояснення, переходиш до практики й відразу бачиш, чи завдання виконано правильно.
+    </p>
+    <p class="leading-relaxed text-slate-700">
+      Прогрес по вправах можна переглянути в профілі — щоб було видно, що вже освоєно і куди рухатися далі.
+    </p>
+  </section>
+</div>
