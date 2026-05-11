@@ -32,6 +32,23 @@
       />
     </div>
 
+    <div class="flex flex-col gap-2">
+      <span class="text-sm font-medium text-slate-700" id="su-kind-label">Хто ви в системі</span>
+      <select
+        id="su-kind"
+        class="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
+        formControlName="participant_kind"
+        aria-labelledby="su-kind-label"
+      >
+        <option value="pupil">Учень</option>
+        <option value="teacher_intent">Вчитель (заявка — підтверджує адміністратор)</option>
+      </select>
+      <p class="m-0 text-xs text-slate-500">
+        Якщо обрано вчителя, після входу заявку побачить адміністратор у списку користувачів. Доки її не схвалено, у вас
+        роль учня з повним доступом до навчання.
+      </p>
+    </div>
+
     <p-button type="submit" label="Зареєструватися" icon="pi pi-user-plus" [loading]="submitting" />
   </form>
 </p-card>

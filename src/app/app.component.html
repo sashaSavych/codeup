@@ -23,6 +23,15 @@
             @if (isAdmin()) {
               <p-button label="Адмін" icon="pi pi-cog" routerLink="/admin" [outlined]="true" />
             }
+            @if (canSeePupilsNav()) {
+              <p-button
+                label="Учні"
+                icon="pi pi-users"
+                routerLink="/profile"
+                [queryParams]="{ tab: 'pupils' }"
+                [outlined]="true"
+              />
+            }
             <p-button label="Чат AI" icon="pi pi-comments" [outlined]="true" (onClick)="chatAi.open()" />
             <p-button [label]="profileService.cachedProfile()?.first_name || u.email" icon="pi pi-user" routerLink="/profile" [outlined]="true" />
             <p-button label="Вийти" icon="pi pi-sign-out" severity="secondary" (onClick)="logout()" />

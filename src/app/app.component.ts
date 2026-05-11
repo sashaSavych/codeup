@@ -25,6 +25,8 @@ export class AppComponent {
 
   readonly isAdmin = computed(() => this.profileService.cachedProfile()?.role === 'admin');
 
+  readonly canSeePupilsNav = computed(() => this.profileService.cachedProfile()?.role === 'teacher');
+
   /** Header auth actions only after profile load rules out `is_blocked`. */
   readonly showSignedInNav = computed(() => {
     if (!this.supabase.user()) {

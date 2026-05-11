@@ -1,4 +1,5 @@
--- Admin: classes list, user roles, blocking. Run in Supabase SQL Editor after profiles.sql.
+-- Admin: classes list, user roles, blocking. Run in Supabase SQL Editor.
+-- Full script order: supabase/README.md (this file after profiles.sql; before practice_progress.sql).
 -- First admin: update public.profiles set role = 'admin' where id = '<your-auth-user-uuid>';
 --
 -- Order matters: profiles.role must exist before is_current_user_admin() is created.
@@ -40,6 +41,13 @@ alter table public.profiles
 create index if not exists profiles_class_id_idx on public.profiles (class_id);
 create index if not exists profiles_is_blocked_idx on public.profiles (is_blocked) where is_blocked;
 
+alter table public.profiles
+  add column if not exists teacher_role_requested boolean not null default false;
+
+create index if not exists profiles_teacher_role_req_idx
+  on public.profiles (teacher_role_requested)
+  where teacher_role_requested;
+
 -- ---------------------------------------------------------------------------
 -- Helper: avoids RLS recursion when policies on profiles reference profiles
 -- ---------------------------------------------------------------------------
@@ -58,6 +66,22 @@ $$;
 
 revoke all on function public.is_current_user_admin() from public;
 grant execute on function public.is_current_user_admin() to authenticated;
+
+create or replace function public.is_current_user_teacher()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(
+    (select p.role = 'teacher' from public.profiles p where p.id = auth.uid()),
+    false
+  );
+$$;
+
+revoke all on function public.is_current_user_teacher() from public;
+grant execute on function public.is_current_user_teacher() to authenticated;
 
 -- ---------------------------------------------------------------------------
 -- Classes: admin-only write policies (after is_current_user_admin exists)
@@ -100,11 +124,13 @@ begin
       new.role := 'student';
     end if;
     new.is_blocked := false;
+    -- teacher_role_requested may be set by the new user (e.g. signup / profile); admins set role later
     return new;
   end if;
   if tg_op = 'UPDATE' and new.id = auth.uid() then
     new.role := old.role;
     new.is_blocked := old.is_blocked;
+    -- teacher_role_requested: user may toggle own request; admins bypass above
   end if;
   return new;
 end;
@@ -132,7 +158,10 @@ create policy "profiles_update_admin"
 -- ---------------------------------------------------------------------------
 -- RPC: list users with email (admin only; empty for others)
 -- ---------------------------------------------------------------------------
-create or replace function public.admin_list_users_with_email()
+-- Postgres does not allow CREATE OR REPLACE when OUT/return row shape changes; drop first.
+drop function if exists public.admin_list_users_with_email();
+
+create function public.admin_list_users_with_email()
 returns table (
   id uuid,
   email text,
@@ -143,6 +172,7 @@ returns table (
   class_id uuid,
   class_list_name text,
   class_free_name text,
+  teacher_role_requested boolean,
   updated_at timestamptz
 )
 language sql
@@ -160,6 +190,7 @@ as $$
     p.class_id,
     c.name,
     p.class_name,
+    p.teacher_role_requested,
     p.updated_at
   from public.profiles p
   join auth.users u on u.id = p.id

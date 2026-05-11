@@ -1,0 +1,11 @@
+# Supabase SQL (CodeUp)
+
+У **Dashboard → SQL Editor** виконуйте скрипти **в цьому порядку**. Наступні кроки залежать від попередніх таблиць і функцій.
+
+1. **`profiles.sql`** — таблиця `public.profiles`, RLS для власного рядка.
+2. **`topics.sql`** — каталог тем і теорії (`public.topics`).
+3. **`practice_tasks.sql`** — вправи практикуму; потребує рядки в `topics`.
+4. **`admin.sql`** — класи, поля профілю (роль, блокування, заявка вчителя), адмін-політики та RPC; потребує `profiles`. Після першого застосування вручну призначте адміна: `update public.profiles set role = 'admin' where id = '<uuid з auth.users>';` (деталь у заголовку файлу).
+5. **`practice_progress.sql`** — серверне збереження проходження вправ і RPC для вчителів; потребує `profiles`, `practice_tasks` і функції з `admin.sql` (зокрема `is_current_user_teacher`).
+
+Повторні запуски: скрипти здебільшого idempotent (`if not exists`, `drop … if exists` де потрібно). Якщо змінюється **сигнатура або тип результату** RPC, у відповідному файлі має бути `DROP FUNCTION …` перед новим `CREATE` — див. `admin.sql` для `admin_list_users_with_email`.

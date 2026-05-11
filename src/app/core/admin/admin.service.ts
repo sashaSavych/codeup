@@ -13,11 +13,30 @@ export class AdminService {
       console.error(error);
       return [];
     }
-    return (data ?? []) as AdminUserRow[];
+    return ((data ?? []) as AdminUserRow[]).map((row) => ({
+      ...row,
+      teacher_role_requested: row.teacher_role_requested === true,
+    }));
   }
 
   async setUserBlocked(userId: string, is_blocked: boolean): Promise<{ error: Error | null }> {
     const { error } = await this.supabase.client.from('profiles').update({ is_blocked }).eq('id', userId);
+    return { error: error ? new Error(error.message) : null };
+  }
+
+  async approveTeacherRole(userId: string): Promise<{ error: Error | null }> {
+    const { error } = await this.supabase.client
+      .from('profiles')
+      .update({ role: 'teacher', teacher_role_requested: false })
+      .eq('id', userId);
+    return { error: error ? new Error(error.message) : null };
+  }
+
+  async rejectTeacherRoleRequest(userId: string): Promise<{ error: Error | null }> {
+    const { error } = await this.supabase.client
+      .from('profiles')
+      .update({ teacher_role_requested: false })
+      .eq('id', userId);
     return { error: error ? new Error(error.message) : null };
   }
 }

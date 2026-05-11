@@ -9,5 +9,6 @@ export interface AdminUserRow {
   class_id: string | null;
   class_list_name: string | null;
   class_free_name: string | null;
+  teacher_role_requested: boolean;
   updated_at: string | null;
 }

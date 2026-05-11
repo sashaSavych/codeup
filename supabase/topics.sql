@@ -1,4 +1,5 @@
--- Run in Supabase Dashboard → SQL Editor (after profiles.sql if needed).
+-- Run in Supabase Dashboard → SQL Editor.
+-- Script order: see supabase/README.md (this file is step 2; after profiles.sql if you use profiles first).
 -- Then run practice_tasks.sql (practice exercises; requires rows in topics).
 -- Public catalogue: anyone (anon + authenticated) can read topics and theory.
 

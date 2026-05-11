@@ -1,4 +1,5 @@
 -- Catalogue of coding exercises (practice tab). Run after topics.sql.
+-- Script order: see supabase/README.md (this file is step 3).
 -- Regenerate seed body: node scripts/gen-practice-tasks-sql.mjs > supabase/practice_tasks.sql
 
 create table if not exists public.practice_tasks (

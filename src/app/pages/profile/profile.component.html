@@ -5,89 +5,96 @@
       <p-tablist>
         @if (!isAdmin()) {
           <p-tab value="progress">Прогрес</p-tab>
-        } @else {
-          <p-tab value="admin">Адміністрування</p-tab>
+        }
+        @if (canSeePupils()) {
+          <p-tab value="pupils">Учні</p-tab>
         }
         <p-tab value="profile">Профіль</p-tab>
       </p-tablist>
       <p-tabpanels>
-        <p-tabpanel value="progress">
-          <div class="cu-profile-progress-scroll">
-            <p-card header="Прогрес практикуму">
-              @if (practiceProgressLoading()) {
-                <p class="text-slate-600">Завантаження прогресу…</p>
-              } @else if (practiceProgressError()) {
-                <p-message class="block" severity="error" [text]="practiceProgressError()" [closable]="false" />
-              } @else if (practiceProgress(); as prog) {
-                @if (prog.total === 0) {
-                  <p class="text-slate-700">
-                    У каталозі ще немає вправ або дані не підвантажились. Після появи вправ у базі тут з’явиться статистика.
-                  </p>
-                  <p-button
-                    class="mt-3"
-                    label="До списку тем"
-                    icon="pi pi-list"
-                    [outlined]="true"
-                    (onClick)="goToTopicsList()"
-                  />
-                } @else {
-                  <div class="mb-6 flex max-w-xl flex-wrap items-center gap-3">
-                    <p class="m-0 shrink-0 text-slate-700">
-                      Усього виконано <strong>{{ prog.completed }}</strong> із <strong>{{ prog.total }}</strong> вправ.
+        @if (!isAdmin()) {
+          <p-tabpanel value="progress">
+            <div class="cu-profile-progress-scroll">
+              <p-card header="Прогрес практикуму">
+                @if (practiceProgressLoading()) {
+                  <p class="text-slate-600">Завантаження прогресу…</p>
+                } @else if (practiceProgressError()) {
+                  <p-message class="block" severity="error" [text]="practiceProgressError()" [closable]="false" />
+                } @else if (practiceProgress(); as prog) {
+                  @if (prog.total === 0) {
+                    <p class="text-slate-700">
+                      У каталозі ще немає вправ або дані не підвантажились. Після появи вправ у базі тут з’явиться статистика.
                     </p>
-                    <div
-                      class="cu-progress-track h-2.5 min-w-[10rem] flex-1 overflow-hidden rounded-full bg-slate-200"
-                      role="progressbar"
-                      [attr.aria-valuenow]="prog.percent"
-                      aria-valuemin="0"
-                      aria-valuemax="100"
-                      [attr.aria-label]="'Загальний прогрес практикуму: ' + prog.percent + ' відсотків'"
-                    >
-                      <div class="cu-progress-fill h-full rounded-full bg-teal-600 transition-[width]" [style.width.%]="prog.percent"></div>
+                    <p-button
+                      class="mt-3"
+                      label="До списку тем"
+                      icon="pi pi-list"
+                      [outlined]="true"
+                      (onClick)="goToTopicsList()"
+                    />
+                  } @else {
+                    <div class="mb-6 flex max-w-xl flex-wrap items-center gap-3">
+                      <p class="m-0 shrink-0 text-slate-700">
+                        Усього виконано <strong>{{ prog.completed }}</strong> із <strong>{{ prog.total }}</strong> вправ.
+                      </p>
+                      <div
+                        class="cu-progress-track h-2.5 min-w-[10rem] flex-1 overflow-hidden rounded-full bg-slate-200"
+                        role="progressbar"
+                        [attr.aria-valuenow]="prog.percent"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                        [attr.aria-label]="'Загальний прогрес практикуму: ' + prog.percent + ' відсотків'"
+                      >
+                        <div class="cu-progress-fill h-full rounded-full bg-teal-600 transition-[width]" [style.width.%]="prog.percent"></div>
+                      </div>
                     </div>
-                  </div>
 
-                  <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">За темами</p>
-                  <ul class="flex flex-col gap-4">
-                    @for (tp of prog.topics; track tp.topicSlug) {
-                      <li class="rounded-xl border border-slate-200 bg-white p-4">
-                        <p class="mb-3 font-semibold text-slate-900">{{ tp.topicTitle }}</p>
-                        <div class="flex flex-wrap items-center gap-3">
-                          <p class="m-0 shrink-0 text-sm text-slate-600">
-                            Виконано {{ tp.completed }} / {{ tp.total }}
-                            @if (tp.total > 0) {
-                              <span class="text-slate-400">({{ tp.percent }}%)</span>
-                            }
-                          </p>
-                          <div
-                            class="cu-progress-track h-2 min-w-[8rem] flex-1 overflow-hidden rounded-full bg-slate-100"
-                            role="progressbar"
-                            [attr.aria-valuenow]="tp.percent"
-                            aria-valuemin="0"
-                            aria-valuemax="100"
-                          >
-                            <div class="cu-progress-fill h-full rounded-full bg-teal-500 transition-[width]" [style.width.%]="tp.percent"></div>
+                    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">За темами</p>
+                    <ul class="flex flex-col gap-4">
+                      @for (tp of prog.topics; track tp.topicSlug) {
+                        <li class="rounded-xl border border-slate-200 bg-white p-4">
+                          <p class="mb-3 font-semibold text-slate-900">{{ tp.topicTitle }}</p>
+                          <div class="flex flex-wrap items-center gap-3">
+                            <p class="m-0 shrink-0 text-sm text-slate-600">
+                              Виконано {{ tp.completed }} / {{ tp.total }}
+                              @if (tp.total > 0) {
+                                <span class="text-slate-400">({{ tp.percent }}%)</span>
+                              }
+                            </p>
+                            <div
+                              class="cu-progress-track h-2 min-w-[8rem] flex-1 overflow-hidden rounded-full bg-slate-100"
+                              role="progressbar"
+                              [attr.aria-valuenow]="tp.percent"
+                              aria-valuemin="0"
+                              aria-valuemax="100"
+                            >
+                              <div class="cu-progress-fill h-full rounded-full bg-teal-500 transition-[width]" [style.width.%]="tp.percent"></div>
+                            </div>
+                            <p-button
+                              class="shrink-0"
+                              label="До вправ"
+                              icon="pi pi-code"
+                              size="small"
+                              [outlined]="true"
+                              (onClick)="goToTopicPractice(tp.topicSlug)"
+                            />
                           </div>
-                          <p-button
-                            class="shrink-0"
-                            label="До вправ"
-                            icon="pi pi-code"
-                            size="small"
-                            [outlined]="true"
-                            (onClick)="goToTopicPractice(tp.topicSlug)"
-                          />
-                        </div>
-                      </li>
-                    }
-                  </ul>
+                        </li>
+                      }
+                    </ul>
 
-                  <p class="mt-4 text-xs text-slate-500">
-                    Прогрес зберігається локально в браузері на цьому пристрої.
-                  </p>
+                    <p class="mt-4 text-xs text-slate-500">
+                      Виконані вправи зберігаються в браузері та синхронізуються на сервер після входу, щоб вчитель міг бачити загальний прогрес учня.
+                    </p>
+                  }
                 }
-              }
-            </p-card>
-          </div>
+              </p-card>
+            </div>
+          </p-tabpanel>
+        }
+
+        <p-tabpanel value="pupils">
+          <cu-teacher-pupils-panel />
         </p-tabpanel>
 
         <p-tabpanel value="profile">
@@ -128,7 +135,7 @@
               <label class="cu-field-label" for="pf-class">Клас</label>
               @if (classesList.length === 0) {
                 <p class="m-0 text-sm text-slate-600">
-                  Список класів ще не налаштований. Попросіть адміністратора додати класи у вкладці «Адміністрування».
+                  Список класів ще не налаштований. Адміністратор додає назви класів у меню «Адмін» → вкладка «Класи».
                 </p>
               } @else {
                 <select id="pf-class" formControlName="class_id" class="cu-select w-full" autocomplete="off">
@@ -139,6 +146,19 @@
                 </select>
               }
             </div>
+
+            @if (isPupilRole()) {
+              <div class="flex flex-col gap-2 rounded-lg border border-slate-200 bg-slate-50/80 p-3">
+                <p class="m-0 text-sm font-medium text-slate-800">Учень чи вчитель</p>
+                <label class="inline-flex cursor-pointer items-start gap-2 text-sm text-slate-800">
+                  <input type="checkbox" formControlName="teacher_role_requested" class="mt-1 shrink-0" />
+                  <span>
+                    Хочу працювати як <strong>вчитель</strong> — заявку розгляне адміністратор (доки не схвалено, залишаюсь
+                    <strong>учнем</strong> з повним доступом до навчання).
+                  </span>
+                </label>
+              </div>
+            }
 
             <div class="flex flex-wrap gap-2">
               <p-button
@@ -161,12 +181,6 @@
           </form>
           </p-card>
         </p-tabpanel>
-
-        @if (isAdmin()) {
-          <p-tabpanel value="admin">
-            <cu-admin />
-          </p-tabpanel>
-        }
       </p-tabpanels>
   </p-tabs>
 }

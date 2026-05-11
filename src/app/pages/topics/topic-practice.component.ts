@@ -10,7 +10,8 @@ import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
 
 import type { CodeTask } from '../../core/practice/code-task.model';
-import { isPracticeTaskPassed, setPracticeTaskPassed } from '../../core/practice/practice-storage';
+import { collectLocalPassedTaskIds, setPracticeTaskPassed } from '../../core/practice/practice-storage';
+import { PracticeProgressRemoteService } from '../../core/practice/practice-progress-remote.service';
 import { PracticeTasksService } from '../../core/practice/practice-tasks.service';
 import { SupabaseService } from '../../core/supabase/supabase.service';
 import { TopicsService } from '../../core/topics/topics.service';
@@ -29,6 +30,7 @@ export class TopicPracticeComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly topicsService = inject(TopicsService);
   private readonly practiceTasks = inject(PracticeTasksService);
+  private readonly practiceProgressRemote = inject(PracticeProgressRemoteService);
   private readonly supabase = inject(SupabaseService);
   private readonly sanitizer = inject(DomSanitizer);
 
@@ -69,6 +71,9 @@ export class TopicPracticeComponent {
   readonly verifyState = signal<{ ok: boolean; text: string } | null>(null);
   readonly verifying = signal(false);
 
+  /** Merged server + local pass state for the signed-in user. */
+  readonly passedTaskIds = signal<ReadonlySet<string>>(new Set());
+
   constructor() {
     effect(() => {
       const list = this.tasksForTopic();
@@ -89,6 +94,27 @@ export class TopicPracticeComponent {
       this.selectedTaskId();
       this.verifyState.set(null);
     });
+
+    effect(() => {
+      const uid = this.supabase.user()?.id;
+      const list = this.tasksForTopic();
+      if (!uid || list === null) {
+        this.passedTaskIds.set(new Set());
+        return;
+      }
+      void this.refreshPassedTaskIds(uid);
+    });
+  }
+
+  private async refreshPassedTaskIds(uid: string): Promise<void> {
+    try {
+      const remote = await this.practiceProgressRemote.listPassedTaskIdsForUser(uid);
+      const merged = new Set<string>([...remote, ...collectLocalPassedTaskIds(uid)]);
+      this.passedTaskIds.set(merged);
+    } catch (e) {
+      console.error(e);
+      this.passedTaskIds.set(new Set(collectLocalPassedTaskIds(uid)));
+    }
   }
 
   selectTask(task: CodeTask): void {
@@ -101,13 +127,20 @@ export class TopicPracticeComponent {
   }
 
   isTaskPassed(taskId: string): boolean {
-    const uid = this.supabase.user()?.id ?? 'guest';
-    return isPracticeTaskPassed(uid, taskId);
+    return this.passedTaskIds().has(taskId);
   }
 
-  private markTaskPassed(taskId: string): void {
-    const uid = this.supabase.user()?.id ?? 'guest';
+  private async markTaskPassed(taskId: string): Promise<void> {
+    const uid = this.supabase.user()?.id;
+    if (!uid) {
+      return;
+    }
     setPracticeTaskPassed(uid, taskId);
+    this.passedTaskIds.update((s) => new Set([...s, taskId]));
+    const { error } = await this.practiceProgressRemote.upsertPass(uid, taskId);
+    if (error) {
+      console.warn('practice_task_passes', error.message);
+    }
   }
 
   async runVerify(): Promise<void> {
@@ -130,7 +163,7 @@ export class TopicPracticeComponent {
       const result = await Promise.resolve(task.verify(code));
       editor.applyVerificationResult(result);
       if (result.ok) {
-        this.markTaskPassed(task.id);
+        await this.markTaskPassed(task.id);
         this.verifyState.set({ ok: true, text: 'Успішно! Завдання виконано.' });
       } else {
         this.verifyState.set({

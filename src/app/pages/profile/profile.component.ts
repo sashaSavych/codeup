@@ -10,12 +10,15 @@ import { TabsModule } from 'primeng/tabs';
 
 import { ClassesService } from '../../core/classes/classes.service';
 import { computeOverallPracticeProgress, type OverallPracticeProgress } from '../../core/practice/practice-progress';
+import { PracticeProgressRemoteService } from '../../core/practice/practice-progress-remote.service';
+import { collectLocalPassedTaskIds } from '../../core/practice/practice-storage';
 import { PracticeTasksService } from '../../core/practice/practice-tasks.service';
 import { ProfileService } from '../../core/profile/profile.service';
 import { SupabaseService } from '../../core/supabase/supabase.service';
 import { TopicsService } from '../../core/topics/topics.service';
 import type { SchoolClass } from '../../models/school-class.model';
-import { AdminComponent } from '../admin/admin.component';
+import type { UserProfile } from '../../models/user-profile.model';
+import { TeacherPupilsPanelComponent } from './teacher-pupils-panel.component';
 
 /** Raw form fields; equality with the saved snapshot uses trimmed text fields. */
 type ProfileFormSnapshot = {
@@ -23,6 +26,7 @@ type ProfileFormSnapshot = {
   last_name: string;
   gender: string;
   class_id: string;
+  teacher_role_requested: boolean;
 };
 
 @Component({
@@ -35,7 +39,7 @@ type ProfileFormSnapshot = {
     InputTextModule,
     MessageModule,
     TabsModule,
-    AdminComponent,
+    TeacherPupilsPanelComponent,
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
@@ -47,6 +51,7 @@ export class ProfileComponent implements OnInit {
   private readonly practiceTasks = inject(PracticeTasksService);
   private readonly topicsService = inject(TopicsService);
   private readonly classesService = inject(ClassesService);
+  private readonly practiceProgressRemote = inject(PracticeProgressRemoteService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -54,6 +59,11 @@ export class ProfileComponent implements OnInit {
   readonly user = this.supabase.user;
 
   readonly isAdmin = computed(() => this.profileService.cachedProfile()?.role === 'admin');
+
+  /** Учні: лише для підтверджених вчителів (не для адміністратора без ролі вчителя). */
+  readonly canSeePupils = computed(() => this.profileService.cachedProfile()?.role === 'teacher');
+
+  readonly isPupilRole = computed(() => this.profileService.cachedProfile()?.role === 'student');
 
   /** Довідник класів (з адмінки); порожньо, якщо ще не налаштовано. */
   classesList: SchoolClass[] = [];
@@ -63,6 +73,7 @@ export class ProfileComponent implements OnInit {
     last_name: [''],
     gender: [''],
     class_id: [''],
+    teacher_role_requested: [false],
   });
 
   readonly genderOptions = [
@@ -77,6 +88,7 @@ export class ProfileComponent implements OnInit {
     last_name: '',
     gender: '',
     class_id: '',
+    teacher_role_requested: false,
   };
 
   readonly hasUnsavedChanges = signal(false);
@@ -86,7 +98,7 @@ export class ProfileComponent implements OnInit {
   readonly practiceProgressError = signal('');
 
   /** Active tab key for `p-tabs` (Прогрес is first in the tab list). */
-  activeTab: 'profile' | 'progress' | 'admin' = 'progress';
+  activeTab: 'profile' | 'progress' | 'pupils' = 'progress';
 
   loading = true;
   saving = false;
@@ -103,18 +115,44 @@ export class ProfileComponent implements OnInit {
     const [existing, classes] = await Promise.all([this.profileService.getByUserId(id), this.classesService.list()]);
     await this.profileService.refreshCachedProfile(id);
 
+    const isAdminUser = existing?.role === 'admin';
     let tab = this.route.snapshot.queryParamMap.get('tab');
-    if (tab === 'admin' && existing?.role !== 'admin') {
-      tab = 'progress';
+    if (tab === 'admin') {
+      tab = 'profile';
       void this.router.navigate([], {
         relativeTo: this.route,
-        queryParams: { tab: 'progress' },
+        queryParams: { tab: 'profile' },
         queryParamsHandling: 'merge',
         replaceUrl: true,
       });
     }
-    if (tab === 'profile' || tab === 'progress' || (tab === 'admin' && existing?.role === 'admin')) {
-      this.activeTab = tab;
+    if (isAdminUser && tab === 'progress') {
+      tab = 'profile';
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { tab: 'profile' },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }
+    const canPupils = existing?.role === 'teacher';
+    if (tab === 'pupils' && !canPupils) {
+      tab = isAdminUser ? 'profile' : 'progress';
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { tab },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }
+    if (tab === 'profile' || tab === 'progress' || tab === 'pupils') {
+      if (isAdminUser && tab === 'progress') {
+        this.activeTab = 'profile';
+      } else {
+        this.activeTab = tab;
+      }
+    } else {
+      this.activeTab = isAdminUser ? 'profile' : 'progress';
     }
 
     this.classesList = classes;
@@ -123,6 +161,7 @@ export class ProfileComponent implements OnInit {
       last_name: existing?.last_name ?? '',
       gender: existing?.gender ?? '',
       class_id: existing?.class_id ?? '',
+      teacher_role_requested: existing?.teacher_role_requested === true,
     };
     this.form.patchValue(this.savedSnapshot);
 
@@ -131,7 +170,11 @@ export class ProfileComponent implements OnInit {
 
     this.loading = false;
 
-    void this.loadPracticeProgress(id);
+    if (!isAdminUser) {
+      void this.loadPracticeProgress(id);
+    } else {
+      this.practiceProgressLoading.set(false);
+    }
   }
 
   private async loadPracticeProgress(userId: string): Promise<void> {
@@ -142,7 +185,10 @@ export class ProfileComponent implements OnInit {
         this.practiceTasks.listTaskSummaries(),
         this.topicsService.listSummaries(),
       ]);
-      this.practiceProgress.set(computeOverallPracticeProgress(userId, summaries, topics));
+      await this.practiceProgressRemote.syncLocalPassedToRemote(userId);
+      const remote = await this.practiceProgressRemote.listPassedTaskIdsForUser(userId);
+      const merged = new Set<string>([...remote, ...collectLocalPassedTaskIds(userId)]);
+      this.practiceProgress.set(computeOverallPracticeProgress(merged, summaries, topics));
     } catch (e) {
       console.error(e);
       this.practiceProgressError.set(
@@ -174,14 +220,20 @@ export class ProfileComponent implements OnInit {
     const v = this.form.getRawValue();
     const classId = v.class_id?.trim() || null;
     const picked = classId ? this.classesList.find((c) => c.id === classId) : undefined;
-    const { error } = await this.profileService.upsert({
+    const role = this.profileService.cachedProfile()?.role;
+    const upsertPayload: Pick<UserProfile, 'id'> &
+      Partial<Pick<UserProfile, 'first_name' | 'last_name' | 'gender' | 'class_id' | 'class_name' | 'teacher_role_requested'>> = {
       id,
       first_name: v.first_name.trim() || null,
       last_name: v.last_name.trim() || null,
       gender: v.gender || null,
       class_id: classId,
       class_name: picked?.name ?? null,
-    });
+    };
+    if (role === 'student') {
+      upsertPayload.teacher_role_requested = v.teacher_role_requested;
+    }
+    const { error } = await this.profileService.upsert(upsertPayload);
 
     this.saving = false;
 
@@ -197,6 +249,7 @@ export class ProfileComponent implements OnInit {
       last_name: saved.last_name.trim(),
       gender: saved.gender || '',
       class_id: saved.class_id?.trim() ?? '',
+      teacher_role_requested: role === 'student' ? saved.teacher_role_requested : this.savedSnapshot.teacher_role_requested,
     };
     this.form.patchValue(this.savedSnapshot);
     this.syncDirtyFlag();
@@ -220,13 +273,16 @@ export class ProfileComponent implements OnInit {
       return;
     }
     const v = String(value);
-    if (v !== 'progress' && v !== 'profile' && v !== 'admin') {
+    if (v !== 'progress' && v !== 'profile' && v !== 'pupils') {
       return;
     }
-    if (v === 'admin' && !this.isAdmin()) {
+    if (v === 'progress' && this.isAdmin()) {
       return;
     }
-    this.activeTab = v as 'progress' | 'profile' | 'admin';
+    if (v === 'pupils' && !this.canSeePupils()) {
+      return;
+    }
+    this.activeTab = v as 'progress' | 'profile' | 'pupils';
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { tab: v },
@@ -241,6 +297,7 @@ export class ProfileComponent implements OnInit {
       last_name: v.last_name.trim(),
       gender: v.gender || '',
       class_id: v.class_id.trim(),
+      teacher_role_requested: v.teacher_role_requested,
     });
     const x = n(a);
     const y = n(b);
@@ -248,7 +305,8 @@ export class ProfileComponent implements OnInit {
       x.first_name === y.first_name &&
       x.last_name === y.last_name &&
       x.gender === y.gender &&
-      x.class_id === y.class_id
+      x.class_id === y.class_id &&
+      x.teacher_role_requested === y.teacher_role_requested
     );
   }
 }

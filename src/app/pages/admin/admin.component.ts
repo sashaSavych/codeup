@@ -8,7 +8,9 @@ import { TabsModule } from 'primeng/tabs';
 
 import { AdminService } from '../../core/admin/admin.service';
 import { ClassesService } from '../../core/classes/classes.service';
+import { profileRoleLabelUk } from '../../core/profile/profile-role-label';
 import { ProfileService } from '../../core/profile/profile.service';
+import { SupabaseService } from '../../core/supabase/supabase.service';
 import type { AdminUserRow } from '../../models/admin-user-row.model';
 import type { SchoolClass } from '../../models/school-class.model';
 
@@ -23,8 +25,9 @@ export class AdminComponent implements OnInit {
   private readonly classesService = inject(ClassesService);
   private readonly adminService = inject(AdminService);
   private readonly profileService = inject(ProfileService);
+  private readonly supabase = inject(SupabaseService);
 
-  activeTab: 'classes' | 'users' = 'classes';
+  activeTab: 'classes' | 'teachers' | 'users' = 'classes';
 
   readonly classes = signal<SchoolClass[]>([]);
   readonly users = signal<AdminUserRow[]>([]);
@@ -37,6 +40,13 @@ export class AdminComponent implements OnInit {
     }
     return list.filter((u) => u.is_blocked);
   });
+
+  /** Заявки на роль вчителя (учень + прапорець заявки). */
+  readonly pendingTeacherRows = computed(() =>
+    this.users().filter((u) => u.teacher_role_requested && u.role === 'student'),
+  );
+
+  readonly currentAdminId = computed(() => this.profileService.cachedProfile()?.id ?? this.supabase.user()?.id ?? null);
 
   newClassName = '';
 
@@ -102,7 +112,47 @@ export class AdminComponent implements OnInit {
     await this.reloadClasses();
   }
 
+  roleLabelUk(role: string): string {
+    return profileRoleLabelUk(role);
+  }
+
+  async approveTeacher(row: AdminUserRow): Promise<void> {
+    this.actionError = '';
+    this.actionBusy = true;
+    const { error } = await this.adminService.approveTeacherRole(row.id);
+    this.actionBusy = false;
+    if (error) {
+      this.actionError = error.message;
+      return;
+    }
+    await this.reloadUsers();
+    const self = this.profileService.cachedProfile();
+    if (self?.id === row.id) {
+      await this.profileService.refreshCachedProfile(row.id);
+    }
+  }
+
+  async rejectTeacherRequest(row: AdminUserRow): Promise<void> {
+    this.actionError = '';
+    this.actionBusy = true;
+    const { error } = await this.adminService.rejectTeacherRoleRequest(row.id);
+    this.actionBusy = false;
+    if (error) {
+      this.actionError = error.message;
+      return;
+    }
+    await this.reloadUsers();
+    const self = this.profileService.cachedProfile();
+    if (self?.id === row.id) {
+      await this.profileService.refreshCachedProfile(row.id);
+    }
+  }
+
   async setBlocked(row: AdminUserRow, blocked: boolean): Promise<void> {
+    if (this.isSelf(row)) {
+      this.actionError = 'Неможливо заблокувати або розблокувати власний обліковий запис.';
+      return;
+    }
     this.actionError = '';
     this.actionBusy = true;
     const { error } = await this.adminService.setUserBlocked(row.id, blocked);
@@ -127,5 +177,10 @@ export class AdminComponent implements OnInit {
 
   displayClass(row: AdminUserRow): string {
     return row.class_list_name || row.class_free_name || '—';
+  }
+
+  isSelf(row: AdminUserRow): boolean {
+    const id = this.currentAdminId();
+    return id !== null && row.id === id;
   }
 }

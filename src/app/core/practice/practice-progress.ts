@@ -1,6 +1,5 @@
 import type { TopicSummary } from '../topics/topic.model';
 
-import { isPracticeTaskPassed } from './practice-storage';
 
 /** Minimal row from `practice_tasks` for progress UI. */
 export interface PracticeTaskSummaryRow {
@@ -27,7 +26,7 @@ export interface OverallPracticeProgress {
 }
 
 export function computeOverallPracticeProgress(
-  userId: string,
+  completedTaskIds: ReadonlySet<string>,
   summaries: PracticeTaskSummaryRow[],
   topics: TopicSummary[],
 ): OverallPracticeProgress {
@@ -45,7 +44,7 @@ export function computeOverallPracticeProgress(
   for (const [slug, taskList] of bySlug) {
     taskList.sort((a, b) => a.sort_order - b.sort_order);
     const total = taskList.length;
-    const completed = taskList.filter((t) => isPracticeTaskPassed(userId, t.id)).length;
+    const completed = taskList.filter((t) => completedTaskIds.has(t.id)).length;
     topicsProgress.push({
       topicSlug: slug,
       topicTitle: topicTitle.get(slug) ?? slug,
@@ -58,7 +57,7 @@ export function computeOverallPracticeProgress(
   topicsProgress.sort((a, b) => a.topicSortOrder - b.topicSortOrder);
 
   const totalAll = summaries.length;
-  const completedAll = summaries.filter((t) => isPracticeTaskPassed(userId, t.id)).length;
+  const completedAll = summaries.filter((t) => completedTaskIds.has(t.id)).length;
 
   return {
     completed: completedAll,

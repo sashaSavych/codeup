@@ -1,0 +1,86 @@
+<p-card header="Учні та прогрес практикуму">
+  <p class="mb-4 text-sm text-slate-600">
+    Перелік облікових записів з роллю «Учень»: скільки вправ виконано на сервері (після входу учня дані з браузера синхронізуються автоматично).
+  </p>
+
+  @if (error()) {
+    <p-message class="mb-4 block" severity="error" [text]="error()" [closable]="false" />
+  }
+
+  <div class="mb-3 flex flex-wrap gap-2">
+    <p-button label="Оновити" icon="pi pi-refresh" [outlined]="true" [loading]="loading()" (onClick)="reload()" />
+  </div>
+
+  @if (loading() && rows().length === 0) {
+    <p class="text-slate-600">Завантаження…</p>
+  } @else if (rows().length === 0) {
+    <p class="text-slate-600">Немає учнів для відображення.</p>
+  } @else {
+    <div class="overflow-x-auto rounded-lg border border-slate-200">
+      <table class="w-full min-w-[40rem] border-collapse text-left text-sm">
+        <thead>
+          <tr class="border-b border-slate-200 bg-slate-50">
+            <th class="px-3 py-2 font-semibold text-slate-800">Учень</th>
+            <th class="px-3 py-2 font-semibold text-slate-800">Пошта</th>
+            <th class="px-3 py-2 font-semibold text-slate-800">Клас</th>
+            <th class="px-3 py-2 font-semibold text-slate-800">Прогрес</th>
+            <th class="px-3 py-2 font-semibold text-slate-800"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.pupil_id) {
+            <tr class="border-b border-slate-100 align-top last:border-b-0">
+              <td class="px-3 py-2 text-slate-900">{{ displayName(row) }}</td>
+              <td class="px-3 py-2 text-slate-700">{{ row.email }}</td>
+              <td class="px-3 py-2 text-slate-700">{{ row.class_display_name || '—' }}</td>
+              <td class="px-3 py-2 text-slate-700">
+                {{ row.completed }} / {{ row.total_tasks }}
+                @if (row.total_tasks > 0) {
+                  <span class="text-slate-400">({{ percent(row) }}%)</span>
+                }
+              </td>
+              <td class="px-3 py-2">
+                <p-button
+                  [label]="expandedId() === row.pupil_id ? 'Сховати' : 'Деталі'"
+                  size="small"
+                  [outlined]="true"
+                  (onClick)="toggleExpand(row)"
+                />
+              </td>
+            </tr>
+            @if (expandedId() === row.pupil_id) {
+              <tr class="border-b border-slate-100 bg-slate-50 last:border-b-0">
+                <td colspan="5" class="px-3 py-4">
+                  @if (expandedLoading()) {
+                    <p class="m-0 text-slate-600">Завантаження деталей…</p>
+                  } @else if (expandedProgress(); as prog) {
+                    @if (prog.total === 0) {
+                      <p class="m-0 text-slate-600">Немає вправ у каталозі.</p>
+                    } @else {
+                      <p class="mb-3 text-sm text-slate-700">
+                        Усього виконано <strong>{{ prog.completed }}</strong> із <strong>{{ prog.total }}</strong> вправ.
+                      </p>
+                      <ul class="m-0 flex list-none flex-col gap-2 p-0">
+                        @for (tp of prog.topics; track tp.topicSlug) {
+                          <li class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm">
+                            <span class="font-medium text-slate-900">{{ tp.topicTitle }}</span>
+                            — {{ tp.completed }} / {{ tp.total }}
+                            @if (tp.total > 0) {
+                              <span class="text-slate-500">({{ tp.percent }}%)</span>
+                            }
+                          </li>
+                        }
+                      </ul>
+                    }
+                  } @else {
+                    <p class="m-0 text-slate-600">Не вдалося побудувати зведення.</p>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</p-card>

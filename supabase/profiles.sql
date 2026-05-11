@@ -1,4 +1,5 @@
 -- Run in Supabase Dashboard → SQL Editor (once per project).
+-- Script order: see supabase/README.md (this file is step 1).
 -- Stores learner profile fields linked to auth.users.
 
 create table if not exists public.profiles (
