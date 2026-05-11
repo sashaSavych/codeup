@@ -11,6 +11,20 @@
       <p-button label="Усі теми" icon="pi pi-arrow-left" routerLink="/topics" [outlined]="true" />
     </div>
 
+    @if (!user()) {
+      <p-card header="Практикум і прогрес">
+        <p class="text-slate-700">
+          Практичні вправи, відстеження виконання та збереження прогресу по темах доступні після входу в систему. Теорію ви
+          можете переглядати без реєстрації; щоб тренуватися й накопичувати результати — увійдіть або створіть обліковий
+          запис.
+        </p>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <p-button label="Увійти" icon="pi pi-sign-in" routerLink="/login" [outlined]="true" />
+          <p-button label="Реєстрація" icon="pi pi-user-plus" routerLink="/signup" />
+        </div>
+      </p-card>
+    }
+
     <p-card [header]="topicResult()!.title">
       <p class="mb-4 text-sm text-slate-600">Урок {{ topicResult()!.sort_order }} · теорія</p>
       @if (theoryHtml(); as html) {
@@ -31,18 +45,6 @@
           icon="pi pi-pencil"
           [routerLink]="['/topics', topicResult()!.slug, 'practice']"
         />
-      </p-card>
-    } @else {
-      <p-card header="Практикум і прогрес">
-        <p class="text-slate-700">
-          Практичні вправи, відстеження виконання та збереження прогресу по темах доступні після входу в систему. Теорію ви
-          можете переглядати без реєстрації; щоб тренуватися й накопичувати результати — увійдіть або створіть обліковий
-          запис.
-        </p>
-        <div class="mt-4 flex flex-wrap gap-2">
-          <p-button label="Увійти" icon="pi pi-sign-in" routerLink="/login" [outlined]="true" />
-          <p-button label="Реєстрація" icon="pi pi-user-plus" routerLink="/signup" />
-        </div>
       </p-card>
     }
   </div>
