@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:github-pages": "node scripts/write-pages-environment.mjs && ng build --configuration=github-pages --base-href=/codeup/",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },

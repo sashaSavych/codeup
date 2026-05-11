@@ -43,3 +43,5 @@ Thumbs.db
 
 # Local Supabase secrets (see environment.development.example.ts)
 /src/environments/environment.development.ts
+# Generated for GitHub Pages builds (CI or local: node scripts/write-pages-environment.mjs)
+/src/environments/environment.pages.ts

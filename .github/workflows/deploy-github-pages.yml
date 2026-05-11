@@ -1,0 +1,62 @@
+# Build Angular app and deploy static output to GitHub Pages.
+# Repo settings → Pages → Build and deployment → Source: GitHub Actions (not "Deploy from a branch").
+# https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Values must exist at build time (not committed in git). Use either Repository **Variables**
+      # or **Secrets** (same names). Prefer Secrets for SUPABASE_PUBLISHABLE_KEY (log masking).
+      - name: Write environment for Pages build
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL || secrets.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY || vars.SUPABASE_PUBLISHABLE_KEY }}
+          CHAT_AI_ENDPOINT: ${{ vars.CHAT_AI_ENDPOINT || secrets.CHAT_AI_ENDPOINT }}
+        run: node scripts/write-pages-environment.mjs
+
+      - name: Build application
+        run: >
+          npx ng build
+          --configuration=github-pages
+          --base-href=/${{ github.event.repository.name }}/
+
+      - name: SPA fallback and disable Jekyll
+        run: |
+          cp dist/codeup/browser/index.html dist/codeup/browser/404.html
+          touch dist/codeup/browser/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/codeup/browser
+
+      - uses: actions/deploy-pages@v4
+        id: deployment

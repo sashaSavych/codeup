@@ -22,6 +22,17 @@
 
 **Автентифікація:** маршрути `/signup`, `/login`, `/profile`. Після реєстрації, якщо сесія активна одразу (без обов’язкового підтвердження email), виконується перехід на `/profile`.
 
+### GitHub Pages (щоб не показувався лише README)
+
+Сайт на `https://<user>.github.io/<repo>/` має віддавати **збірку** з `dist/.../browser/`, а не корінь репозиторію з `README.md`.
+
+1. У репозиторії: **Settings → Pages → Build and deployment**.
+2. **Source** оберіть **GitHub Actions** (не «Deploy from a branch» з гілкою `main` і папкою `/ (root)` — тоді Pages показує файли репо без `index.html` застосунку).
+3. У **Settings → Secrets and variables → Actions** задай ті самі імена, що в `environment.development.example.ts`: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, опційно `CHAT_AI_ENDPOINT`. Можна як **Variables** (публічні в UI для тих, хто має доступ), як **Secrets**, або змішано — workflow підставляє `vars.*` або `secrets.*` у такому порядку: URL і чат — спочатку variables; publishable key — спочатку secrets (рекомендовано для маскування в логах).
+4. Після push у `main` (або `master`) спрацьовує workflow **Deploy GitHub Pages** (`.github/workflows/deploy-github-pages.yml`): збірка з `--base-href=/<ім’я-репо>/`, копія `index.html` → `404.html` для SPA, файл `.nojekyll`.
+
+Локальна перевірка збірки під Pages: `node scripts/write-pages-environment.mjs` (підстав змінні середовища за потреби), потім `npx ng build --configuration=github-pages --base-href=/codeup/` (заміни `codeup` на ім’я свого репо).
+
 ---
 
 ## Призначення та контекст
