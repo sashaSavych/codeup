@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
@@ -35,6 +35,7 @@ export class ProfileComponent implements OnInit {
   private readonly profileService = inject(ProfileService);
   private readonly practiceTasks = inject(PracticeTasksService);
   private readonly topicsService = inject(TopicsService);
+  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -80,6 +81,11 @@ export class ProfileComponent implements OnInit {
     if (!id) {
       await this.router.navigateByUrl('/login');
       return;
+    }
+
+    const tab = this.route.snapshot.queryParamMap.get('tab');
+    if (tab === 'profile' || tab === 'progress') {
+      this.activeTab = tab;
     }
 
     const existing = await this.profileService.getByUserId(id);

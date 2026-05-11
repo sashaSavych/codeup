@@ -57,7 +57,7 @@ export class SignUpComponent {
     }
 
     if (data.session) {
-      await this.router.navigateByUrl('/profile');
+      await this.router.navigate(['/profile'], { queryParams: { tab: 'profile' } });
       return;
     }
 
