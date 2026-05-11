@@ -20,6 +20,7 @@
         <p-button label="Теми" icon="pi pi-list" routerLink="/topics" [outlined]="true" />
         @if (showSignedInNav()) {
           @if (user(); as u) {
+            <p-button label="Рейтинг" icon="pi pi-chart-bar" routerLink="/leaderboard" [outlined]="true" />
             @if (isAdmin()) {
               <p-button label="Адмін" icon="pi pi-cog" routerLink="/admin" [outlined]="true" />
             }

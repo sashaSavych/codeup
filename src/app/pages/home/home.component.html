@@ -30,6 +30,41 @@
     </div>
   </section>
 
+  @if (user()) {
+    <section class="space-y-3 rounded-2xl border border-slate-200 bg-white px-5 py-6 shadow-sm">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 class="m-0 text-lg font-semibold text-slate-900">Топ-5 класу</h2>
+        <p-button label="Увесь рейтинг" icon="pi pi-chart-bar" routerLink="/leaderboard" [outlined]="true" size="small" />
+      </div>
+      @if (top5Loading()) {
+        <p class="m-0 text-sm text-slate-600">Завантаження рейтингу…</p>
+      } @else if (top5Error()) {
+        <p class="m-0 text-sm text-amber-800">{{ top5Error() }}</p>
+      } @else if (top5().length === 0) {
+        <p class="m-0 text-sm text-slate-600">
+          Поки немає учасників або не обрано клас. Увімкни змагання й псевдонім у
+          <a routerLink="/profile" class="text-teal-700 underline">профілі</a>.
+        </p>
+      } @else {
+        <ol class="m-0 list-decimal space-y-2 pl-5 text-slate-800">
+          @for (r of top5(); track r.rank + r.nickname) {
+            <li>
+              <span class="font-medium">{{ r.nickname }}</span>
+              <span class="text-slate-600"> — {{ r.competition_score }} б., серія {{ r.streak_days }}</span>
+            </li>
+          }
+        </ol>
+      }
+    </section>
+  } @else {
+    <section class="rounded-2xl border border-dashed border-slate-200 bg-white/80 px-5 py-4 text-sm text-slate-600">
+      <p class="m-0">
+        Після входу тут з’явиться топ-5 твого класу за балами змагання.
+        <a routerLink="/login" class="font-medium text-teal-700 underline">Увійти</a>
+      </p>
+    </section>
+  }
+
   <section class="space-y-4">
     <h2 class="text-lg font-semibold text-slate-900">Що таке CodeUp</h2>
     <p class="leading-relaxed text-slate-700">

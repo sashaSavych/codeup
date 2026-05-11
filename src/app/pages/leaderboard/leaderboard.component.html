@@ -1,0 +1,48 @@
+<div class="cu-leaderboard mx-auto max-w-3xl space-y-6">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <h1 class="m-0 text-xl font-semibold text-slate-900">Рейтинг класу</h1>
+    <p-button label="На головну" icon="pi pi-home" routerLink="/" [outlined]="true" />
+  </div>
+
+  <p class="m-0 text-sm text-slate-600">
+    Показано учнів твого класу, які ввімкнули участь і вказали псевдонім. Сортування за балами змагання (не за прогресом тем).
+  </p>
+
+  @if (loading()) {
+    <p class="text-slate-600">Завантаження…</p>
+  } @else if (error()) {
+    <p-message severity="error" [text]="error()" [closable]="false" />
+  } @else if (rows().length === 0) {
+    <p-card>
+      <p class="m-0 text-slate-700">
+        Поки нікого у списку. Переконайся, що в профілі обрано клас, увімкнено участь у змаганні та збережено псевдонім — або зайди пізніше.
+      </p>
+      <p-button class="mt-4" label="До профілю" icon="pi pi-user" routerLink="/profile" [queryParams]="{ tab: 'profile' }" />
+    </p-card>
+  } @else {
+    <p-card>
+      <div class="overflow-x-auto">
+        <table class="cu-lb-table w-full min-w-[20rem] border-collapse text-left text-sm">
+          <thead>
+            <tr class="border-b border-slate-200 text-slate-600">
+              <th class="py-2 pr-3 font-semibold">#</th>
+              <th class="py-2 pr-3 font-semibold">Псевдонім</th>
+              <th class="py-2 pr-3 font-semibold">Бали</th>
+              <th class="py-2 font-semibold">Серія</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of rows(); track r.rank + r.nickname) {
+              <tr class="border-b border-slate-100 text-slate-900">
+                <td class="py-2 pr-3">{{ r.rank }}</td>
+                <td class="py-2 pr-3 font-medium">{{ r.nickname }}</td>
+                <td class="py-2 pr-3">{{ r.competition_score }}</td>
+                <td class="py-2">{{ r.streak_days }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </p-card>
+  }
+</div>

@@ -53,6 +53,37 @@
   box-shadow: 0 0 0 1px rgb(13 148 136 / 0.35);
 }
 
+/* PrimeNG checkbox: keep unchecked box light (Aura + OS dark / color-scheme can paint it black). */
+.cu-shell main .p-checkbox .p-checkbox-box {
+  background: #ffffff !important;
+  border-color: rgb(203 213 225) !important;
+}
+
+.cu-shell main .p-checkbox.p-checkbox-checked .p-checkbox-box {
+  background: rgb(13 148 136) !important;
+  border-color: rgb(13 148 136) !important;
+}
+
+.cu-shell main .p-checkbox.p-checkbox-checked .p-checkbox-icon {
+  color: #ffffff !important;
+}
+
+.cu-shell main .p-checkbox:not(.p-disabled):hover .p-checkbox-box {
+  border-color: rgb(148 163 184) !important;
+}
+
+.cu-shell main .p-checkbox.p-disabled .p-checkbox-box {
+  background: rgb(241 245 249) !important;
+  border-color: rgb(226 232 240) !important;
+  opacity: 1;
+}
+
+/* Native checkboxes (e.g. profile teacher request) — readable on light cards. */
+.cu-shell main input[type='checkbox']:not(.p-checkbox-input) {
+  accent-color: rgb(13 148 136);
+  color-scheme: light;
+}
+
 /* Disabled — grayed (must override forced white on .p-inputtext above). */
 .cu-shell main .p-inputtext:disabled,
 .cu-shell main .p-inputtext.p-disabled,

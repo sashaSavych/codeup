@@ -11,6 +11,7 @@ import { MessageModule } from 'primeng/message';
 
 import type { CodeTask } from '../../core/practice/code-task.model';
 import { collectLocalPassedTaskIds, setPracticeTaskPassed } from '../../core/practice/practice-storage';
+import { GamificationService } from '../../core/gamification/gamification.service';
 import { PracticeProgressRemoteService } from '../../core/practice/practice-progress-remote.service';
 import { PracticeTasksService } from '../../core/practice/practice-tasks.service';
 import { SupabaseService } from '../../core/supabase/supabase.service';
@@ -31,6 +32,7 @@ export class TopicPracticeComponent {
   private readonly topicsService = inject(TopicsService);
   private readonly practiceTasks = inject(PracticeTasksService);
   private readonly practiceProgressRemote = inject(PracticeProgressRemoteService);
+  private readonly gamification = inject(GamificationService);
   private readonly supabase = inject(SupabaseService);
   private readonly sanitizer = inject(DomSanitizer);
 
@@ -140,6 +142,11 @@ export class TopicPracticeComponent {
     const { error } = await this.practiceProgressRemote.upsertPass(uid, taskId);
     if (error) {
       console.warn('practice_task_passes', error.message);
+      return;
+    }
+    const rec = await this.gamification.reconcile();
+    if (rec.error) {
+      console.warn('gamification_reconcile', rec.error.message);
     }
   }
 

@@ -20,7 +20,9 @@
 
 **Запуск локально:** з каталогу `codeup/` виконати `npm install`, потім `npm start`. Збірка: `npm run build`; тести: `npm test`. Конфігурація Supabase (не комітити ключі): скопіювати `src/environments/environment.development.example.ts` у `environment.development.ts` і заповнити **Project URL** та **Publishable** ключ (`sb_publishable_...`) з вкладки **Publishable and secret API keys** у Dashboard → Settings → API Keys (JWT **anon** з вкладки Legacy ще підтримується під час міграції). **Порядок SQL-скриптів** для таблиць тем, профілю, адмінки та прогресу вправ — у **[`supabase/README.md`](./supabase/README.md)**. **Чат AI (Gemini):** функцію **`chat-ai`** створюють і деплоять у **Supabase Dashboard → Edge Functions** (код у веб-редакторі; у репозиторії вона не зберігається). У Secrets додай **`GEMINI_API_KEY`** ([AI Studio](https://aistudio.google.com/apikey)); **`GEMINI_MODEL`** = `gemini-2.5-flash` (як у проєкті). У `environment.development.ts`: `chatAiEndpoint` = `https://<ref>.supabase.co/functions/v1/chat-ai`; клієнт шле JWT + `apikey` (publishable) і `{ "messages": [...] }`.
 
-**Автентифікація:** маршрути `/signup`, `/login`, `/profile`. Після реєстрації, якщо сесія активна одразу (без обов’язкового підтвердження email), виконується перехід на `/profile`.
+**Автентифікація:** маршрути `/signup`, `/login`, `/profile`, `/leaderboard`. Після реєстрації, якщо сесія активна одразу (без обов’язкового підтвердження email), виконується перехід на `/profile`.
+
+**Гейміфікація:** після виконання **`supabase/gamification.sql`** учні з увімкненою участю й псевдонімом набирають бали за **нові** проходження вправ на сервері (`practice_task_passes`), не більше **50 балів на добу** за датою **Europe/Kyiv**; пропущений календарний день без заморозки скидає **бали змагання** та **серію** (прогрес тем не знімається). Рейтинг — **лише в межах одного класу** (`class_id`). На головній показується **топ-5** класу.
 
 ### GitHub Pages (щоб не показувався лише README)
 

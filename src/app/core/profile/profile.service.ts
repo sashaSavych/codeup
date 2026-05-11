@@ -19,6 +19,8 @@ function mapProfileRow(data: Record<string, unknown> | null): UserProfile | null
     role: allowed.includes(role) ? role : 'student',
     is_blocked: data['is_blocked'] === true,
     teacher_role_requested: data['teacher_role_requested'] === true,
+    competition_opt_in: data['competition_opt_in'] === true,
+    leaderboard_nickname: (data['leaderboard_nickname'] as string | null) ?? null,
     updated_at: (data['updated_at'] as string | null) ?? null,
   };
 }
@@ -98,6 +100,12 @@ export class ProfileService {
     }
     if (profile.teacher_role_requested !== undefined) {
       row['teacher_role_requested'] = profile.teacher_role_requested;
+    }
+    if (profile.competition_opt_in !== undefined) {
+      row['competition_opt_in'] = profile.competition_opt_in;
+    }
+    if (profile.leaderboard_nickname !== undefined) {
+      row['leaderboard_nickname'] = profile.leaderboard_nickname;
     }
 
     const { error } = await this.supabase.client.from('profiles').upsert(row, { onConflict: 'id' });

@@ -1,5 +1,5 @@
 -- Server-side practice completion (for teachers viewing pupil progress).
--- Full script order: supabase/README.md (run after profiles.sql, topics.sql, practice_tasks.sql, admin.sql).
+-- Full script order: supabase/README.md (run after profiles.sql, topics.sql, practice_tasks.sql, admin.sql; then gamification.sql).
 
 create table if not exists public.practice_task_passes (
   user_id uuid not null references public.profiles (id) on delete cascade,

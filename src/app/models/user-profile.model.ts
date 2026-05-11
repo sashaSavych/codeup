@@ -11,5 +11,9 @@ export interface UserProfile {
   is_blocked: boolean;
   /** User asked to become a teacher; administrator must approve (sets `role` to teacher). */
   teacher_role_requested: boolean;
+  /** Participate in class leaderboard (requires class + nickname rules in UI). */
+  competition_opt_in: boolean;
+  /** Public display name on leaderboard; set once while opted in (DB trigger). */
+  leaderboard_nickname: string | null;
   updated_at?: string | null;
 }
