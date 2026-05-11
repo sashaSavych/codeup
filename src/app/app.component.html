@@ -17,12 +17,16 @@
         </span>
       </a>
       <nav class="flex flex-wrap items-center gap-2">
-        <p-button label="Теми" icon="pi pi-list" routerLink="/topics" [outlined]="true" />
+        @if (!isAdmin()) {
+          <p-button label="Теми" icon="pi pi-list" routerLink="/topics" [outlined]="true" />
+        }
         @if (showSignedInNav()) {
           @if (user(); as u) {
-            <p-button label="Рейтинг" icon="pi pi-chart-bar" routerLink="/leaderboard" [outlined]="true" />
+            @if (!isAdmin()) {
+              <p-button label="Рейтинг" icon="pi pi-chart-bar" routerLink="/leaderboard" [outlined]="true" />
+            }
             @if (isAdmin()) {
-              <p-button label="Адмін" icon="pi pi-cog" routerLink="/admin" [outlined]="true" />
+              <p-button label="Адміністрування" icon="pi pi-cog" routerLink="/admin" [outlined]="true" />
             }
             @if (canSeePupilsNav()) {
               <p-button
@@ -33,7 +37,9 @@
                 [outlined]="true"
               />
             }
-            <p-button label="Чат AI" icon="pi pi-comments" [outlined]="true" (onClick)="chatAi.open()" />
+            @if (!isAdmin()) {
+              <p-button label="Чат AI" icon="pi pi-comments" [outlined]="true" (onClick)="chatAi.open()" />
+            }
             <p-button [label]="profileService.cachedProfile()?.first_name || u.email" icon="pi pi-user" routerLink="/profile" [outlined]="true" />
             <p-button label="Вийти" icon="pi pi-sign-out" severity="secondary" (onClick)="logout()" />
           }
@@ -51,7 +57,7 @@
     <router-outlet />
   </main>
 
-  @if (showSignedInNav()) {
+  @if (showSignedInNav() && !isAdmin()) {
     <cu-chat-ai />
   }
 </div>
