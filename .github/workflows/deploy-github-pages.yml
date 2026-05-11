@@ -49,6 +49,11 @@ jobs:
           --configuration=github-pages
           --base-href=/${{ github.event.repository.name }}/
 
+      - name: Verify Pages bundle
+        run: |
+          test -f dist/codeup/browser/index.html || (echo 'Missing dist/codeup/browser/index.html — check outputPath in angular.json'; exit 1)
+          ls -la dist/codeup/browser | head -n 20
+
       - name: SPA fallback and disable Jekyll
         run: |
           cp dist/codeup/browser/index.html dist/codeup/browser/404.html
