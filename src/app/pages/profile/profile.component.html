@@ -97,13 +97,12 @@
                   } @else if (gamificationError()) {
                     <p-message class="block" severity="warn" [text]="gamificationError()" [closable]="false" />
                   } @else if (gamificationStatus(); as g) {
-                    <ul class="m-0 list-none space-y-2 p-0 text-slate-800">
+                    <ul class="m-0 mb-4 list-none space-y-2 p-0 text-slate-800">
                       <li><strong>Бали змагання:</strong> {{ g.competition_score }}</li>
                       <li><strong>Серія днів:</strong> {{ g.streak_days }}</li>
-                      <li><strong>Заморозки:</strong> {{ g.freeze_balance }} (автоматично витрачаються на пропущені дні за київським календарем)</li>
+                      <li><strong>Заморозки:</strong> {{ g.freeze_balance }} (автоматично витрачаються на пропущені дні)</li>
                     </ul>
                     <p-button
-                      class="mt-4"
                       label="Таблиця лідерів класу"
                       icon="pi pi-chart-bar"
                       [outlined]="true"
