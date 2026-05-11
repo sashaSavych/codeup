@@ -160,10 +160,11 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
         require?: AMDRequire;
         monaco?: MonacoModule;
       };
+      const vsRoot = new URL('monaco/vs', document.baseURI).href.replace(/\/$/, '');
       if (!g.require) {
         await new Promise<void>((resolve, reject) => {
           const s = document.createElement('script');
-          s.src = '/monaco/vs/loader.js';
+          s.src = `${vsRoot}/loader.js`;
           s.onload = () => resolve();
           s.onerror = () => reject(new Error('Failed to load Monaco loader'));
           document.head.appendChild(s);
@@ -173,7 +174,7 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
       if (!req) {
         throw new Error('Monaco AMD loader missing');
       }
-      req.config({ paths: { vs: '/monaco/vs' } });
+      req.config({ paths: { vs: vsRoot } });
       await new Promise<void>((resolve, reject) => {
         req(['vs/editor/editor.main'], () => resolve(), (err) => reject(err ?? new Error('Monaco load failed')));
       });

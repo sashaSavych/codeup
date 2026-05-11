@@ -38,7 +38,19 @@ export class SupabaseService {
       this.resolveInitialSession = resolve;
     });
 
-    this.client = createClient(environment.supabaseUrl, environment.supabasePublishableKey, {
+    const url = environment.supabaseUrl?.trim() ?? '';
+    const key = environment.supabasePublishableKey?.trim() ?? '';
+    if (!url || !key) {
+      console.warn(
+        '[CodeUp] Supabase URL or publishable key is missing. Auth and API calls are disabled until environment is configured.',
+      );
+    }
+
+    // createClient throws on empty url/key — use placeholders so the app still boots (e.g. GitHub Pages if CI env failed).
+    const safeUrl = url || 'https://placeholder.invalid';
+    const safeKey = key || 'sb_publishable_not_configured';
+
+    this.client = createClient(safeUrl, safeKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,

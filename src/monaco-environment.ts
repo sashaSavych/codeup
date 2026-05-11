@@ -1,9 +1,17 @@
 /**
- * Configure workers before Monaco AMD loader runs. Assets: `/monaco/vs` (angular.json).
+ * Configure workers before Monaco AMD loader runs. Assets live under `monaco/vs` (angular.json),
+ * resolved against `<base href>` so GitHub Pages (`/repo/`) loads workers from `/repo/monaco/vs/...`.
  */
 export {};
 
-const base = `${typeof document !== 'undefined' ? document.location.origin : ''}/monaco/vs`;
+function monacoVsBase(): string {
+  if (typeof document === 'undefined') {
+    return '/monaco/vs';
+  }
+  return new URL('monaco/vs', document.baseURI).href.replace(/\/$/, '');
+}
+
+const base = monacoVsBase();
 
 declare global {
   interface Window {
