@@ -1,5 +1,12 @@
-# Build Angular app and deploy static output to GitHub Pages.
-# Repo settings → Pages → Build and deployment → Source: GitHub Actions (not "Deploy from a branch").
+# Build Angular and deploy static output to GitHub Pages.
+#
+# If https://<user>.github.io/<repo>/ shows README.md (even from "Visit site"):
+#   1) Repo → Settings → Pages → Build and deployment → Source = GitHub Actions
+#      (not "Deploy from a branch" with /(root) — that serves the repo without app index.html).
+#   2) Actions → "Deploy GitHub Pages": latest run must be green; open it and approve
+#      if the job waits on the "github-pages" environment (first-time / protection rules).
+#   3) Re-run the workflow after changing Pages source.
+#
 # https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
 name: Deploy GitHub Pages
 
@@ -15,13 +22,10 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,8 +38,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Values must exist at build time (not committed in git). Use either Repository **Variables**
-      # or **Secrets** (same names). Prefer Secrets for SUPABASE_PUBLISHABLE_KEY (log masking).
+      # Use Repository Variables and/or Secrets (same names). Prefer Secrets for SUPABASE_PUBLISHABLE_KEY.
       - name: Write environment for Pages build
         env:
           SUPABASE_URL: ${{ vars.SUPABASE_URL || secrets.SUPABASE_URL }}
@@ -52,6 +55,7 @@ jobs:
       - name: Verify Pages bundle
         run: |
           test -f dist/codeup/browser/index.html || (echo 'Missing dist/codeup/browser/index.html — check outputPath in angular.json'; exit 1)
+          echo "Repository name (base href segment): ${{ github.event.repository.name }}"
           ls -la dist/codeup/browser | head -n 20
 
       - name: SPA fallback and disable Jekyll
@@ -59,9 +63,22 @@ jobs:
           cp dist/codeup/browser/index.html dist/codeup/browser/404.html
           touch dist/codeup/browser/.nojekyll
 
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist/codeup/browser
+          # Default excludes dotfiles; .nojekyll must be in the artifact for GitHub Pages.
+          include-hidden-files: true
 
-      - uses: actions/deploy-pages@v4
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
         id: deployment
+        uses: actions/deploy-pages@v5
