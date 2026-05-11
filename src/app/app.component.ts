@@ -1,4 +1,4 @@
-import { Component, effect, inject } from '@angular/core';
+import { Component, computed, effect, inject } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 
@@ -22,6 +22,19 @@ export class AppComponent {
   private readonly router = inject(Router);
 
   readonly user = this.supabase.user;
+
+  readonly isAdmin = computed(() => this.profileService.cachedProfile()?.role === 'admin');
+
+  /** Header auth actions only after profile load rules out `is_blocked`. */
+  readonly showSignedInNav = computed(() => {
+    if (!this.supabase.user()) {
+      return false;
+    }
+    if (this.profileService.profileRefreshPending()) {
+      return false;
+    }
+    return this.profileService.cachedProfile()?.is_blocked !== true;
+  });
 
   constructor() {
     effect(() => {

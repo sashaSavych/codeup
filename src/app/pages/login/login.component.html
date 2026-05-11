@@ -1,5 +1,8 @@
 <p-card header="Вхід">
   <form class="flex max-w-md flex-col gap-4" (ngSubmit)="onSubmit()" [formGroup]="form">
+    @if (blockedNotice) {
+      <p-message severity="warn" [text]="blockedNotice" [closable]="false" />
+    }
     @if (errorMessage) {
       <p-message severity="error" [text]="errorMessage" [closable]="false" />
     }

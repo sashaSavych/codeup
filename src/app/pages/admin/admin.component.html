@@ -1,0 +1,146 @@
+<p-tabs class="cu-admin-tabs" [(value)]="activeTab">
+  <p-tablist>
+    <p-tab value="classes">Класи</p-tab>
+    <p-tab value="users">Користувачі та блокування</p-tab>
+  </p-tablist>
+  <p-tabpanels>
+    <p-tabpanel value="classes">
+      <div class="flex max-w-xl flex-col gap-4">
+        <p class="text-sm text-slate-600">
+          Додавайте назви класів із довідника; учні обирають клас у профілі зі списку.
+        </p>
+        @if (classesLoading) {
+          <p class="text-slate-600">Завантаження…</p>
+        } @else if (classesError) {
+          <p-message severity="error" [text]="classesError" [closable]="false" />
+        } @else {
+          <div class="flex flex-wrap items-end gap-2">
+            <div class="flex min-w-[12rem] flex-1 flex-col gap-2">
+              <label class="text-sm font-medium text-slate-700" for="adm-class-name">Новий клас</label>
+              <input
+                pInputText
+                id="adm-class-name"
+                class="w-full"
+                [(ngModel)]="newClassName"
+                placeholder="Наприклад: 9-А"
+                autocomplete="off"
+                [disabled]="actionBusy"
+              />
+            </div>
+            <p-button
+              label="Додати"
+              icon="pi pi-plus"
+              [loading]="actionBusy"
+              [disabled]="!newClassName.trim()"
+              (onClick)="addClass()"
+            />
+          </div>
+
+          @if (classes().length === 0) {
+            <p class="text-slate-600">Поки що немає жодного класу.</p>
+          } @else {
+            <ul class="m-0 flex list-none flex-col gap-2 p-0">
+              @for (c of classes(); track c.id) {
+                <li
+                  class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2"
+                >
+                  <span class="font-medium text-slate-900">{{ c.name }}</span>
+                  <p-button
+                    icon="pi pi-trash"
+                    severity="danger"
+                    [outlined]="true"
+                    [rounded]="true"
+                    [disabled]="actionBusy"
+                    [attr.aria-label]="'Видалити клас ' + c.name"
+                    (onClick)="removeClass(c)"
+                  />
+                </li>
+              }
+            </ul>
+          }
+        }
+      </div>
+    </p-tabpanel>
+
+    <p-tabpanel value="users">
+      <div class="flex flex-col gap-4">
+        <div class="flex flex-wrap items-center gap-3">
+          <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-700">
+            <input type="checkbox" [ngModel]="blockedOnly()" (ngModelChange)="blockedOnly.set($event)" />
+            Лише заблоковані
+          </label>
+          <p-button
+            label="Оновити список"
+            icon="pi pi-refresh"
+            [outlined]="true"
+            [loading]="usersLoading"
+            [disabled]="actionBusy"
+            (onClick)="reloadUsers()"
+          />
+        </div>
+
+        @if (usersLoading && users().length === 0) {
+          <p class="text-slate-600">Завантаження…</p>
+        } @else if (usersError) {
+          <p-message severity="error" [text]="usersError" [closable]="false" />
+        } @else if (filteredUsers().length === 0) {
+          <p class="text-slate-600">Немає записів для відображення.</p>
+        } @else {
+          <div class="overflow-x-auto rounded-lg border border-slate-200">
+            <table class="cu-admin-table w-full min-w-[44rem] border-collapse text-left text-sm">
+              <thead>
+              <tr class="border-b border-slate-200 bg-slate-50">
+                <th class="px-3 py-2 font-semibold text-slate-800">Пошта</th>
+                <th class="px-3 py-2 font-semibold text-slate-800">Імʼя</th>
+                <th class="px-3 py-2 font-semibold text-slate-800">Роль</th>
+                <th class="px-3 py-2 font-semibold text-slate-800">Клас</th>
+                <th class="px-3 py-2 font-semibold text-slate-800">Статус</th>
+                <th class="px-3 py-2 font-semibold text-slate-800">Дії</th>
+              </tr>
+              </thead>
+              <tbody>
+                @for (row of filteredUsers(); track row.id) {
+                  <tr class="border-b border-slate-100 last:border-b-0">
+                    <td class="px-3 py-2 text-slate-800">{{ row.email }}</td>
+                    <td class="px-3 py-2 text-slate-700">{{ displayName(row) }}</td>
+                    <td class="px-3 py-2 text-slate-700">{{ row.role }}</td>
+                    <td class="px-3 py-2 text-slate-700">{{ displayClass(row) }}</td>
+                    <td class="px-3 py-2">
+                      @if (row.is_blocked) {
+                        <span class="rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">Заблоковано</span>
+                      } @else {
+                        <span class="rounded bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">Активний</span>
+                      }
+                    </td>
+                    <td class="px-3 py-2">
+                      @if (row.is_blocked) {
+                        <p-button
+                          label="Розблокувати"
+                          icon="pi pi-unlock"
+                          size="small"
+                          [outlined]="true"
+                          [disabled]="actionBusy"
+                          (onClick)="setBlocked(row, false)"
+                        />
+                      } @else {
+                        <p-button
+                          label="Заблокувати"
+                          icon="pi pi-ban"
+                          size="small"
+                          severity="danger"
+                          [outlined]="true"
+                          [disabled]="actionBusy"
+                          (onClick)="setBlocked(row, true)"
+                        />
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </p-tabpanel>
+  </p-tabpanels>
+</p-tabs>

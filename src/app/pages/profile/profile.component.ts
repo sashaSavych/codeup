@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,24 +8,35 @@ import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { TabsModule } from 'primeng/tabs';
 
+import { ClassesService } from '../../core/classes/classes.service';
 import { computeOverallPracticeProgress, type OverallPracticeProgress } from '../../core/practice/practice-progress';
 import { PracticeTasksService } from '../../core/practice/practice-tasks.service';
 import { ProfileService } from '../../core/profile/profile.service';
 import { SupabaseService } from '../../core/supabase/supabase.service';
 import { TopicsService } from '../../core/topics/topics.service';
+import type { SchoolClass } from '../../models/school-class.model';
+import { AdminComponent } from '../admin/admin.component';
 
 /** Raw form fields; equality with the saved snapshot uses trimmed text fields. */
 type ProfileFormSnapshot = {
   first_name: string;
   last_name: string;
   gender: string;
-  class_name: string;
+  class_id: string;
 };
 
 @Component({
   selector: 'cu-profile',
   standalone: true,
-  imports: [ReactiveFormsModule, ButtonModule, CardModule, InputTextModule, MessageModule, TabsModule],
+  imports: [
+    ReactiveFormsModule,
+    ButtonModule,
+    CardModule,
+    InputTextModule,
+    MessageModule,
+    TabsModule,
+    AdminComponent,
+  ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
 })
@@ -35,17 +46,23 @@ export class ProfileComponent implements OnInit {
   private readonly profileService = inject(ProfileService);
   private readonly practiceTasks = inject(PracticeTasksService);
   private readonly topicsService = inject(TopicsService);
+  private readonly classesService = inject(ClassesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly user = this.supabase.user;
 
+  readonly isAdmin = computed(() => this.profileService.cachedProfile()?.role === 'admin');
+
+  /** Довідник класів (з адмінки); порожньо, якщо ще не налаштовано. */
+  classesList: SchoolClass[] = [];
+
   readonly form = this.fb.nonNullable.group({
     first_name: [''],
     last_name: [''],
     gender: [''],
-    class_name: [''],
+    class_id: [''],
   });
 
   readonly genderOptions = [
@@ -59,7 +76,7 @@ export class ProfileComponent implements OnInit {
     first_name: '',
     last_name: '',
     gender: '',
-    class_name: '',
+    class_id: '',
   };
 
   readonly hasUnsavedChanges = signal(false);
@@ -69,7 +86,7 @@ export class ProfileComponent implements OnInit {
   readonly practiceProgressError = signal('');
 
   /** Active tab key for `p-tabs` (Прогрес is first in the tab list). */
-  activeTab: 'profile' | 'progress' = 'progress';
+  activeTab: 'profile' | 'progress' | 'admin' = 'progress';
 
   loading = true;
   saving = false;
@@ -83,17 +100,29 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
-    const tab = this.route.snapshot.queryParamMap.get('tab');
-    if (tab === 'profile' || tab === 'progress') {
+    const [existing, classes] = await Promise.all([this.profileService.getByUserId(id), this.classesService.list()]);
+    await this.profileService.refreshCachedProfile(id);
+
+    let tab = this.route.snapshot.queryParamMap.get('tab');
+    if (tab === 'admin' && existing?.role !== 'admin') {
+      tab = 'progress';
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { tab: 'progress' },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }
+    if (tab === 'profile' || tab === 'progress' || (tab === 'admin' && existing?.role === 'admin')) {
       this.activeTab = tab;
     }
 
-    const existing = await this.profileService.getByUserId(id);
+    this.classesList = classes;
     this.savedSnapshot = {
       first_name: existing?.first_name ?? '',
       last_name: existing?.last_name ?? '',
       gender: existing?.gender ?? '',
-      class_name: existing?.class_name ?? '',
+      class_id: existing?.class_id ?? '',
     };
     this.form.patchValue(this.savedSnapshot);
 
@@ -143,12 +172,15 @@ export class ProfileComponent implements OnInit {
     this.successMessage = '';
 
     const v = this.form.getRawValue();
+    const classId = v.class_id?.trim() || null;
+    const picked = classId ? this.classesList.find((c) => c.id === classId) : undefined;
     const { error } = await this.profileService.upsert({
       id,
       first_name: v.first_name.trim() || null,
       last_name: v.last_name.trim() || null,
       gender: v.gender || null,
-      class_name: v.class_name.trim() || null,
+      class_id: classId,
+      class_name: picked?.name ?? null,
     });
 
     this.saving = false;
@@ -164,7 +196,7 @@ export class ProfileComponent implements OnInit {
       first_name: saved.first_name.trim(),
       last_name: saved.last_name.trim(),
       gender: saved.gender || '',
-      class_name: saved.class_name.trim(),
+      class_id: saved.class_id?.trim() ?? '',
     };
     this.form.patchValue(this.savedSnapshot);
     this.syncDirtyFlag();
@@ -183,12 +215,32 @@ export class ProfileComponent implements OnInit {
     void this.router.navigate(['/topics']);
   }
 
+  onTabChange(value: string | number | undefined): void {
+    if (value === undefined || value === null) {
+      return;
+    }
+    const v = String(value);
+    if (v !== 'progress' && v !== 'profile' && v !== 'admin') {
+      return;
+    }
+    if (v === 'admin' && !this.isAdmin()) {
+      return;
+    }
+    this.activeTab = v as 'progress' | 'profile' | 'admin';
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: v },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
+
   private normalizedEqual(a: ProfileFormSnapshot, b: ProfileFormSnapshot): boolean {
     const n = (v: ProfileFormSnapshot) => ({
       first_name: v.first_name.trim(),
       last_name: v.last_name.trim(),
       gender: v.gender || '',
-      class_name: v.class_name.trim(),
+      class_id: v.class_id.trim(),
     });
     const x = n(a);
     const y = n(b);
@@ -196,7 +248,7 @@ export class ProfileComponent implements OnInit {
       x.first_name === y.first_name &&
       x.last_name === y.last_name &&
       x.gender === y.gender &&
-      x.class_name === y.class_name
+      x.class_id === y.class_id
     );
   }
 }

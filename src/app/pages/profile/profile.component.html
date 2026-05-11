@@ -1,9 +1,13 @@
 @if (loading) {
   <p class="text-slate-600">Завантаження…</p>
 } @else {
-  <p-tabs class="cu-profile-tabs" [(value)]="activeTab">
+  <p-tabs class="cu-profile-tabs" [value]="activeTab" (valueChange)="onTabChange($event)">
       <p-tablist>
-        <p-tab value="progress">Прогрес</p-tab>
+        @if (!isAdmin()) {
+          <p-tab value="progress">Прогрес</p-tab>
+        } @else {
+          <p-tab value="admin">Адміністрування</p-tab>
+        }
         <p-tab value="profile">Профіль</p-tab>
       </p-tablist>
       <p-tabpanels>
@@ -122,14 +126,18 @@
 
             <div class="flex flex-col gap-2">
               <label class="cu-field-label" for="pf-class">Клас</label>
-              <input
-                pInputText
-                id="pf-class"
-                class="w-full"
-                formControlName="class_name"
-                placeholder="Наприклад: 9-А"
-                autocomplete="off"
-              />
+              @if (classesList.length === 0) {
+                <p class="m-0 text-sm text-slate-600">
+                  Список класів ще не налаштований. Попросіть адміністратора додати класи у вкладці «Адміністрування».
+                </p>
+              } @else {
+                <select id="pf-class" formControlName="class_id" class="cu-select w-full" autocomplete="off">
+                  <option value="">Не обрано</option>
+                  @for (c of classesList; track c.id) {
+                    <option [value]="c.id">{{ c.name }}</option>
+                  }
+                </select>
+              }
             </div>
 
             <div class="flex flex-wrap gap-2">
@@ -153,6 +161,12 @@
           </form>
           </p-card>
         </p-tabpanel>
+
+        @if (isAdmin()) {
+          <p-tabpanel value="admin">
+            <cu-admin />
+          </p-tabpanel>
+        }
       </p-tabpanels>
   </p-tabs>
 }

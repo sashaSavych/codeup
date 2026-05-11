@@ -54,3 +54,11 @@ Web app for teaching JavaScript in secondary schools: modular navigation, theory
 ## 7. Handoff to the user
 
 After substantive changes, summarize briefly: what changed, which files, whether migrations or env vars are needed (e.g. Supabase). Never commit secrets.
+
+---
+
+## 8. Admin (roles, classes, blocking)
+
+- **SQL:** `supabase/admin.sql` after `profiles.sql`. First admin: `update public.profiles set role = 'admin' where id = '<uuid>';` for your auth user.
+- **App:** route `/admin` (guards: `authGuard`, `adminGuard`). Header shows «Адмін» when `cachedProfile.role === 'admin'`.
+- **RLS:** `public.is_current_user_admin()` (security definer) avoids recursive policy checks on `profiles`.
