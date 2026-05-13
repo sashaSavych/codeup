@@ -9,6 +9,18 @@
   min-height: 0;
 }
 
+.cu-chat-notice {
+  flex-shrink: 0;
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: rgb(51 65 85);
+  background: rgb(241 245 249);
+  border: 1px solid rgb(226 232 240);
+}
+
 .cu-chat-tagline {
   flex-shrink: 0;
   margin: 0 0 0.75rem;

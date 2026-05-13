@@ -10,6 +10,9 @@
     styleClass="cu-chat-drawer"
   >
     <div class="cu-chat-inner">
+      <p class="cu-chat-notice" role="region" aria-label="Правила навчального чату">
+        Зверни увагу! Помічник допомагає зрозуміти теорію, але <strong>не розв’язує</strong> вправи — це закріплено й у налаштуваннях моделі.
+      </p>
       <div #messageScroll class="cu-chat-scroll" role="log" aria-live="polite" aria-relevant="additions">
         @for (m of messages(); track m.at + '-' + m.role + '-' + $index) {
           <div class="cu-chat-row" [class.cu-chat-row--user]="m.role === 'user'">
