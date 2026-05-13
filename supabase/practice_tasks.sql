@@ -1,5 +1,4 @@
 -- Catalogue of coding exercises (practice tab). Run after topics.sql.
--- Script order: see supabase/README.md (this file is step 3).
 -- Regenerate seed body: node scripts/gen-practice-tasks-sql.mjs > supabase/practice_tasks.sql
 
 create table if not exists public.practice_tasks (
@@ -37,7 +36,7 @@ insert into public.practice_tasks (
   $pt_intro_hello_slug$intro$pt_intro_hello_slug$,
   1,
   $pt_intro_hello_title$Перший рядок$pt_intro_hello_title$,
-  $pt_intro_hello_desc$Оголоси **константу** `hello` з рядком `"CodeUp"` (лапки як у прикладі). Нічого не виводь у консоль — перевірка читає значення змінної.$pt_intro_hello_desc$,
+  $pt_intro_hello_desc$Оголоси **константу** `hello` з рядком `"CodeUp"` (лапки як у прикладі). У теорії цієї теми — розділ «Константа й рядок». Нічого не виводь у консоль — перевірка читає значення змінної.$pt_intro_hello_desc$,
   $pt_intro_hello_starter$// const hello = ...
 $pt_intro_hello_starter$,
   $pt_intro_hello_harness$;(function () {
@@ -62,7 +61,7 @@ insert into public.practice_tasks (
   $pt_intro_greet_slug$intro$pt_intro_greet_slug$,
   2,
   $pt_intro_greet_title$Функція привітання$pt_intro_greet_title$,
-  $pt_intro_greet_desc$Напиши функцію **greet(name)**, яка повертає рядок виду `Привіт, Імʼя!` (з пробілом після коми).$pt_intro_greet_desc$,
+  $pt_intro_greet_desc$Напиши функцію **greet(name)**, яка **повертає** (`return`) рядок виду `Привіт, Імʼя!` (з пробілом після коми). Можна склеїти частини через `+`. У теорії — розділ «Найпростіша функція та `return`».$pt_intro_greet_desc$,
   $pt_intro_greet_starter$function greet(name) {
   // поверни рядок
 }
