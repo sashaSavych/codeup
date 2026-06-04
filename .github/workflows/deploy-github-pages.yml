@@ -20,6 +20,10 @@ on:
     branches: [main, master]
   workflow_dispatch:
 
+# GitHub Actions runners: use Node 24 for JavaScript-based actions (checkout, setup-node, …).
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: read
   pages: write
@@ -35,11 +39,11 @@ jobs:
     # Required so `vars.*` / `secrets.*` from the `github-pages` environment are available to this job.
     environment: github-pages
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: '22'
+          node-version: '24'
           cache: npm
 
       - name: Install dependencies
