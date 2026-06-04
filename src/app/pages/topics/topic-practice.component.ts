@@ -1,7 +1,7 @@
 import { Component, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { marked } from 'marked';
 import { from } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
@@ -16,19 +16,23 @@ import { PracticeProgressRemoteService } from '../../core/practice/practice-prog
 import { PracticeTasksService } from '../../core/practice/practice-tasks.service';
 import { SupabaseService } from '../../core/supabase/supabase.service';
 import { TopicsService } from '../../core/topics/topics.service';
+import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.component';
 import { CodeEditorComponent } from '../../shared/code-editor/code-editor.component';
+
+const AUTO_NEXT_KEY = 'cu_auto_next_task';
 
 marked.setOptions({ gfm: true, breaks: true });
 
 @Component({
   selector: 'cu-topic-practice',
   standalone: true,
-  imports: [RouterLink, ButtonModule, CardModule, MessageModule, CodeEditorComponent],
+  imports: [RouterLink, ButtonModule, CardModule, MessageModule, CodeEditorComponent, BreadcrumbComponent],
   templateUrl: './topic-practice.component.html',
   styleUrl: './topic-practice.component.scss',
 })
 export class TopicPracticeComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly topicsService = inject(TopicsService);
   private readonly practiceTasks = inject(PracticeTasksService);
   private readonly practiceProgressRemote = inject(PracticeProgressRemoteService);
@@ -38,6 +42,8 @@ export class TopicPracticeComponent {
 
   readonly editorRef = viewChild(CodeEditorComponent);
 
+  readonly topicSlug = toSignal(this.route.paramMap.pipe(map((p) => p.get('slug') ?? '')));
+
   readonly topicResult = toSignal(
     this.route.paramMap.pipe(
       map((p) => p.get('slug') ?? ''),
@@ -45,7 +51,8 @@ export class TopicPracticeComponent {
     ),
   );
 
-  /** `null` while waiting for the first emit for this route; then possibly empty. */
+  readonly queryTaskId = toSignal(this.route.queryParamMap.pipe(map((p) => p.get('taskId'))));
+
   readonly tasksForTopic = toSignal<CodeTask[] | null>(
     this.route.paramMap.pipe(
       map((p) => p.get('slug') ?? ''),
@@ -72,19 +79,35 @@ export class TopicPracticeComponent {
 
   readonly verifyState = signal<{ ok: boolean; text: string } | null>(null);
   readonly verifying = signal(false);
+  readonly showNextTaskButton = signal(false);
+  readonly topicCompleted = signal(false);
 
-  /** Merged server + local pass state for the signed-in user. */
   readonly passedTaskIds = signal<ReadonlySet<string>>(new Set());
+
+  readonly breadcrumbs = computed(() => {
+    const t = this.topicResult();
+    const title = t?.title ?? 'Практикум';
+    return [
+      { label: 'Головна', link: '/' },
+      { label: 'Теми', link: '/topics' },
+      { label: title },
+    ];
+  });
 
   constructor() {
     effect(() => {
       const list = this.tasksForTopic();
       const id = this.selectedTaskId();
+      const qid = this.queryTaskId();
       if (list === null) {
         return;
       }
       if (!list.length) {
         this.selectedTaskId.set(null);
+        return;
+      }
+      if (qid && list.some((x) => x.id === qid)) {
+        this.selectedTaskId.set(qid);
         return;
       }
       if (!id || !list.some((x) => x.id === id)) {
@@ -95,6 +118,8 @@ export class TopicPracticeComponent {
     effect(() => {
       this.selectedTaskId();
       this.verifyState.set(null);
+      this.showNextTaskButton.set(false);
+      this.topicCompleted.set(false);
     });
 
     effect(() => {
@@ -132,6 +157,36 @@ export class TopicPracticeComponent {
     return this.passedTaskIds().has(taskId);
   }
 
+  getNextTask(afterTaskId: string): CodeTask | null {
+    const list = this.tasksForTopic();
+    if (!list?.length) {
+      return null;
+    }
+    const idx = list.findIndex((t) => t.id === afterTaskId);
+    if (idx < 0 || idx >= list.length - 1) {
+      return null;
+    }
+    return list[idx + 1];
+  }
+
+  goToNextTask(): void {
+    const current = this.selectedTask();
+    if (!current) {
+      return;
+    }
+    const next = this.getNextTask(current.id);
+    if (next) {
+      this.selectedTaskId.set(next.id);
+      this.showNextTaskButton.set(false);
+      this.verifyState.set(null);
+      return;
+    }
+    const slug = this.topicSlug();
+    if (slug) {
+      void this.router.navigate(['/topics', slug]);
+    }
+  }
+
   private async markTaskPassed(taskId: string): Promise<void> {
     const uid = this.supabase.user()?.id;
     if (!uid) {
@@ -147,6 +202,19 @@ export class TopicPracticeComponent {
     const rec = await this.gamification.reconcile();
     if (rec.error) {
       console.warn('gamification_reconcile', rec.error.message);
+    }
+  }
+
+  private maybeAutoAdvance(taskId: string): void {
+    const next = this.getNextTask(taskId);
+    if (!next) {
+      this.topicCompleted.set(true);
+      this.showNextTaskButton.set(false);
+      return;
+    }
+    this.showNextTaskButton.set(true);
+    if (localStorage.getItem(AUTO_NEXT_KEY) === '1') {
+      setTimeout(() => this.goToNextTask(), 1500);
     }
   }
 
@@ -166,29 +234,28 @@ export class TopicPracticeComponent {
     const code = editor.getValue();
     this.verifying.set(true);
     this.verifyState.set(null);
+    this.showNextTaskButton.set(false);
+    this.topicCompleted.set(false);
     try {
       const result = await Promise.resolve(task.verify(code));
       editor.applyVerificationResult(result);
       if (result.ok) {
         await this.markTaskPassed(task.id);
         this.verifyState.set({ ok: true, text: 'Успішно! Завдання виконано.' });
+        this.maybeAutoAdvance(task.id);
       } else {
-        this.verifyState.set({
-          ok: false,
-          text: result.message ?? 'Перевірка не пройдена.',
-        });
+        const text = result.message?.trim() ? result.message : 'Перевірка не пройдена.';
+        this.verifyState.set({ ok: false, text });
       }
     } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Помилка перевірки.';
       editor.applyVerificationResult({
         ok: false,
-        message: e instanceof Error ? e.message : 'Помилка перевірки.',
+        message: msg,
         markerLine: 1,
         markerColumn: 1,
       });
-      this.verifyState.set({
-        ok: false,
-        text: e instanceof Error ? e.message : 'Помилка перевірки.',
-      });
+      this.verifyState.set({ ok: false, text: msg });
     } finally {
       this.verifying.set(false);
     }

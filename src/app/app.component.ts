@@ -1,5 +1,5 @@
 import { Component, computed, effect, inject } from '@angular/core';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 
 import { ChatAiService } from './core/chat-ai/chat-ai.service';
@@ -9,7 +9,7 @@ import { ChatAiComponent } from './shared/chat-ai/chat-ai.component';
 
 @Component({
   selector: 'cu-root',
-  imports: [RouterOutlet, RouterLink, ButtonModule, ChatAiComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, ButtonModule, ChatAiComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })

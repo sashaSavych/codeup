@@ -20,6 +20,7 @@ import { SupabaseService } from '../../core/supabase/supabase.service';
 import { TopicsService } from '../../core/topics/topics.service';
 import type { SchoolClass } from '../../models/school-class.model';
 import type { UserProfile } from '../../models/user-profile.model';
+import { GamificationRulesPanelComponent } from '../../shared/gamification-rules-panel/gamification-rules-panel.component';
 import { TeacherPupilsPanelComponent } from './teacher-pupils-panel.component';
 
 /** Raw form fields; equality with the saved snapshot uses trimmed text fields. */
@@ -45,6 +46,7 @@ type ProfileFormSnapshot = {
     MessageModule,
     TabsModule,
     TeacherPupilsPanelComponent,
+    GamificationRulesPanelComponent,
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
@@ -167,6 +169,10 @@ export class ProfileComponent implements OnInit {
       }
     } else {
       this.activeTab = isAdminUser ? 'profile' : 'progress';
+    }
+
+    if (this.route.snapshot.queryParamMap.get('welcome') === '1') {
+      this.successMessage = 'Ласкаво просимо! Заповни профіль і перейди до тем.';
     }
 
     this.classesList = classes;
@@ -324,10 +330,31 @@ export class ProfileComponent implements OnInit {
     };
     this.form.patchValue(this.savedSnapshot);
     this.syncDirtyFlag();
-    this.successMessage = 'Профіль збережено.';
     if (role === 'student') {
       void this.loadGamification();
     }
+
+    if (this.isProfileReadyForNavigation(role)) {
+      await this.router.navigate(['/topics'], { queryParams: { saved: '1' } });
+      return;
+    }
+
+    this.successMessage =
+      role === 'student'
+        ? 'Профіль збережено. Додай ім’я та клас, щоб перейти до тем.'
+        : 'Профіль збережено. Додай ім’я, щоб перейти до тем.';
+  }
+
+  /** Enough data to leave profile after save. */
+  private isProfileReadyForNavigation(role: string | undefined): boolean {
+    const snap = this.savedSnapshot;
+    if (!snap.first_name.trim().length) {
+      return false;
+    }
+    if (role === 'student') {
+      return !!snap.class_id.trim().length;
+    }
+    return true;
   }
 
   private syncDirtyFlag(): void {

@@ -231,6 +231,100 @@ body {
   padding: 0;
 }
 
+/* Shell nav: active route highlight on header buttons */
+.cu-shell header .p-button.cu-nav-active {
+  border-color: rgb(13 148 136) !important;
+  background: rgb(240 253 250) !important;
+  color: rgb(15 118 110) !important;
+}
+
+.cu-leaderboard-me,
+.cu-home .cu-leaderboard-me {
+  background: rgb(240 253 250);
+  border-radius: 0.25rem;
+  padding-inline: 0.25rem;
+  margin-inline: -0.25rem;
+}
+
+.cu-topic--complete {
+  background: rgb(204 251 241) !important;
+  color: rgb(15 118 110) !important;
+}
+
+/* Onboarding tour overlay */
+.cu-onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1rem;
+  background: rgb(15 23 42 / 0.45);
+}
+
+.cu-onboarding-card {
+  width: min(100%, 22rem);
+  padding: 1.25rem;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 20px 40px -12px rgb(15 23 42 / 0.35);
+  color: rgb(15 23 42);
+}
+
+.cu-onboarding-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.cu-onboarding-body {
+  margin: 0 0 1rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: rgb(51 65 85);
+}
+
+.cu-onboarding-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.cu-onboarding-skip,
+.cu-onboarding-next {
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.cu-onboarding-skip {
+  border: 1px solid rgb(226 232 240);
+  background: #fff;
+  color: rgb(71 85 105);
+}
+
+.cu-onboarding-next {
+  border: none;
+  background: rgb(13 148 136);
+  color: #fff;
+}
+
+.cu-onboarding-highlight {
+  position: relative;
+  z-index: 10001;
+  outline: 3px solid rgb(45 212 191);
+  outline-offset: 3px;
+  border-radius: 0.375rem;
+}
+
+.cu-gamification-rules summary::-webkit-details-marker {
+  display: none;
+}
+
 @media (prefers-color-scheme: dark) {
   .cu-shell main cu-profile p-tabs.cu-profile-tabs.p-tabs {
     background-color: #fff !important;

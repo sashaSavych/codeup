@@ -1,4 +1,6 @@
 <div class="cu-leaderboard mx-auto max-w-3xl space-y-6">
+  <cu-breadcrumb [items]="breadcrumbs" />
+
   <div class="flex flex-wrap items-center justify-between gap-3">
     <h1 class="m-0 text-xl font-semibold text-slate-900">Рейтинг класу</h1>
   </div>
@@ -6,6 +8,8 @@
   <p class="m-0 text-sm text-slate-600">
     Показано учнів твого класу, які ввімкнули участь і вказали псевдонім. Сортування за балами змагання (не за прогресом тем).
   </p>
+
+  <cu-gamification-rules-panel />
 
   @if (loading()) {
     <p class="text-slate-600">Завантаження…</p>
@@ -32,9 +36,17 @@
           </thead>
           <tbody>
             @for (r of rows(); track r.rank + r.nickname) {
-              <tr class="border-b border-slate-100 text-slate-900">
+              <tr
+                class="border-b border-slate-100 text-slate-900"
+                [class.cu-leaderboard-me]="isMyRow(r)"
+              >
                 <td class="py-2 pr-3">{{ r.rank }}</td>
-                <td class="py-2 pr-3 font-medium">{{ r.nickname }}</td>
+                <td class="py-2 pr-3 font-medium">
+                  {{ r.nickname }}
+                  @if (isMyRow(r)) {
+                    <span class="text-xs font-normal text-teal-700"> (ви)</span>
+                  }
+                </td>
                 <td class="py-2 pr-3">{{ r.competition_score }}</td>
                 <td class="py-2">{{ r.streak_days }}</td>
               </tr>

@@ -1,4 +1,8 @@
 <div class="cu-home mx-auto max-w-3xl space-y-10">
+  @if (flashMessage()) {
+    <p-message class="block" [severity]="flashSeverity()" [text]="flashMessage()" [closable]="false" />
+  }
+
   <blockquote class="cu-home-quote m-0 border-l-4 border-teal-600 bg-teal-50/60 px-5 py-4 text-slate-800">
     <p class="text-base font-medium leading-relaxed italic">
       Програмування не вимагає «геніальності» — воно вимагає посидючості й готовності спробувати ще раз після чергової помилки. Кожен рядок коду, який ти зрозумів і дописав сам, — уже маленька перемога.
@@ -7,15 +11,20 @@
   </blockquote>
 
   <section class="cu-home-hero rounded-2xl border border-teal-200/80 bg-gradient-to-br from-teal-50 via-white to-slate-50 px-6 py-10 shadow-sm sm:px-8">
-    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-teal-700">CodeUp</p>
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-teal-700">CodeUp · JavaScript · Інформатика</p>
     <h1 class="mb-4 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
       Вивчай JavaScript маленькими кроками
     </h1>
     <p class="max-w-2xl text-lg leading-relaxed text-slate-700">
-      Короткі теоретичні матеріали й автоматичні вправи з перевіркою коду в браузері — без зайвих складнощів на старті.
+      Короткі теоретичні матеріали й автоматичні вправи з перевіркою коду в браузері — модуль програмування в курсі інформатики.
     </p>
     <div class="mt-8 flex flex-wrap gap-3">
-      <p-button label="Перейти до тем" icon="pi pi-list" routerLink="/topics" />
+      <p-button
+        data-cu-tour="home-topics-cta"
+        label="Перейти до тем"
+        icon="pi pi-list"
+        routerLink="/topics"
+      />
       @if (user(); as u) {
         <p-button
           label="Мій профіль"
@@ -31,35 +40,61 @@
   </section>
 
   @if (user()) {
-    <section class="space-y-3 rounded-2xl border border-slate-200 bg-white px-5 py-6 shadow-sm">
-      <div class="flex flex-wrap items-center justify-between gap-2">
-        <h2 class="m-0 text-lg font-semibold text-slate-900">Топ-5 класу</h2>
-        <p-button label="Увесь рейтинг" icon="pi pi-chart-bar" routerLink="/leaderboard" [outlined]="true" size="small" />
-      </div>
-      @if (top5Loading()) {
-        <p class="m-0 text-sm text-slate-600">Завантаження рейтингу…</p>
-      } @else if (top5Error()) {
-        <p class="m-0 text-sm text-amber-800">{{ top5Error() }}</p>
-      } @else if (top5().length === 0) {
-        <p class="m-0 text-sm text-slate-600">
-          Поки немає учасників або не обрано клас. Увімкни змагання й псевдонім у
-          <a routerLink="/profile" class="text-teal-700 underline">профілі</a>.
+    <section class="space-y-3 rounded-2xl border border-teal-200 bg-white px-5 py-6 shadow-sm">
+      <h2 class="m-0 text-lg font-semibold text-slate-900">Продовжити навчання</h2>
+      @if (resumeLoading()) {
+        <p class="m-0 text-sm text-slate-600">Шукаємо наступну вправу…</p>
+      } @else if (resume(); as r) {
+        <p class="m-0 text-slate-700">
+          <strong>{{ r.topicTitle }}</strong> — {{ r.taskTitle }}
         </p>
+        <p-button
+          class="mt-3"
+          label="Продовжити"
+          icon="pi pi-play"
+          [routerLink]="['/topics', r.topicSlug, 'practice']"
+          [queryParams]="{ taskId: r.taskId }"
+        />
       } @else {
-        <ol class="m-0 list-decimal space-y-2 pl-5 text-slate-800">
-          @for (r of top5(); track r.rank + r.nickname) {
-            <li>
-              <span class="font-medium">{{ r.nickname }}</span>
-              <span class="text-slate-600"> — {{ r.competition_score }} б., серія {{ r.streak_days }}</span>
-            </li>
-          }
-        </ol>
+        <p class="m-0 text-sm text-slate-600">Усі вправи виконано або каталог порожній. Переглянь теми.</p>
+        <p-button class="mt-3" label="До тем" icon="pi pi-list" routerLink="/topics" [outlined]="true" />
       }
     </section>
+
+    @if (showLeaderboardPreview) {
+      <section class="space-y-3 rounded-2xl border border-slate-200 bg-white px-5 py-6 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <h2 class="m-0 text-lg font-semibold text-slate-900">Топ-5 класу</h2>
+          <p-button label="Увесь рейтинг" icon="pi pi-chart-bar" routerLink="/leaderboard" [outlined]="true" size="small" />
+        </div>
+        @if (top5Loading()) {
+          <p class="m-0 text-sm text-slate-600">Завантаження рейтингу…</p>
+        } @else if (top5Error()) {
+          <p class="m-0 text-sm text-amber-800">{{ top5Error() }}</p>
+        } @else if (top5().length === 0) {
+          <p class="m-0 text-sm text-slate-600">
+            Поки немає учасників або не обрано клас. Увімкни змагання й псевдонім у
+            <a routerLink="/profile" class="text-teal-700 underline">профілі</a>.
+          </p>
+        } @else {
+          <ol class="m-0 list-decimal space-y-2 pl-5 text-slate-800">
+            @for (r of top5(); track r.rank + r.nickname) {
+              <li [class.cu-leaderboard-me]="isMyRow(r)">
+                <span class="font-medium">{{ r.nickname }}</span>
+                @if (isMyRow(r)) {
+                  <span class="text-xs font-normal text-teal-700"> (ви)</span>
+                }
+                <span class="text-slate-600"> — {{ r.competition_score }} б., серія {{ r.streak_days }}</span>
+              </li>
+            }
+          </ol>
+        }
+      </section>
+    }
   } @else {
     <section class="rounded-2xl border border-dashed border-slate-200 bg-white/80 px-5 py-4 text-sm text-slate-600">
       <p class="m-0">
-        Після входу тут з’явиться топ-5 твого класу за балами змагання.
+        Після входу тут з’явиться «Продовжити» та топ-5 класу.
         <a routerLink="/login" class="font-medium text-teal-700 underline">Увійти</a>
       </p>
     </section>
@@ -69,10 +104,6 @@
     <h2 class="text-lg font-semibold text-slate-900">Що таке CodeUp</h2>
     <p class="leading-relaxed text-slate-700">
       Це навчальний модуль для школярів і початківців: теми від першого знайомства з JavaScript до циклів, функцій, роботи з даними та базового асинхронного коду. Ти читаєш пояснення, переходиш до практики й відразу бачиш, чи завдання виконано правильно.
-    </p>
-    <p class="leading-relaxed text-slate-700">
-      Після входу на сторінці <strong>Теми</strong> для кожного уроку показано, скільки вправ практикуму вже виконано; детальний розбір по темах — у
-      <strong>профілі</strong>.
     </p>
   </section>
 </div>

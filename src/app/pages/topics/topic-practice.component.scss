@@ -19,6 +19,26 @@
   box-shadow: 0 0 0 1px rgb(13 148 136 / 0.25);
 }
 
+.cu-task-pill--passed:not(.cu-task-pill--active) {
+  border-color: rgb(153 246 228);
+  background: rgb(240 253 250 / 0.6);
+}
+
+.cu-practice-editor :deep(.cu-code-editor-host) {
+  min-height: 40vh;
+}
+
+@media (max-width: 767px) {
+  .cu-practice-layout {
+    overflow-x: hidden;
+  }
+
+  .cu-touch-target :deep(.p-button) {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+  }
+}
+
 .cu-task-desc :deep(p) {
   margin: 0 0 0.5rem;
 }

@@ -69,7 +69,7 @@ export class SignUpComponent {
           console.error(pErr);
         }
       }
-      await this.router.navigate(['/profile'], { queryParams: { tab: 'profile' } });
+      await this.router.navigate(['/profile'], { queryParams: { tab: 'profile', welcome: '1' } });
       return;
     }
 

@@ -3,4 +3,5 @@ export const environment = {
   supabaseUrl: '',
   supabasePublishableKey: '',
   chatAiEndpoint: '' as string | undefined,
+  showLeaderboardPreview: true,
 };

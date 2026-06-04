@@ -18,12 +18,27 @@
       </a>
       <nav class="flex flex-wrap items-center gap-2">
         @if (!isAdmin()) {
-          <p-button label="Теми" icon="pi pi-list" routerLink="/topics" [outlined]="true" />
+          <p-button
+            data-cu-tour="nav-topics"
+            label="Теми"
+            icon="pi pi-list"
+            routerLink="/topics"
+            routerLinkActive="cu-nav-active"
+            [routerLinkActiveOptions]="{ paths: 'subset', queryParams: 'ignored', fragment: 'ignored', matrixParams: 'ignored' }"
+            [outlined]="true"
+          />
         }
         @if (showSignedInNav()) {
           @if (user(); as u) {
             @if (!isAdmin()) {
-              <p-button label="Рейтинг" icon="pi pi-chart-bar" routerLink="/leaderboard" [outlined]="true" />
+              <p-button
+                label="Рейтинг"
+                icon="pi pi-chart-bar"
+                routerLink="/leaderboard"
+                routerLinkActive="cu-nav-active"
+                [routerLinkActiveOptions]="{ paths: 'subset', queryParams: 'ignored', fragment: 'ignored', matrixParams: 'ignored' }"
+                [outlined]="true"
+              />
             }
             @if (isAdmin()) {
               <p-button label="Адміністрування" icon="pi pi-cog" routerLink="/admin" [outlined]="true" />
@@ -40,7 +55,15 @@
             @if (!isAdmin()) {
               <p-button label="Чат AI" icon="pi pi-comments" [outlined]="true" (onClick)="chatAi.open()" />
             }
-            <p-button [label]="profileService.cachedProfile()?.first_name || u.email" icon="pi pi-user" routerLink="/profile" [outlined]="true" />
+            <p-button
+              data-cu-tour="nav-profile"
+              [label]="profileService.cachedProfile()?.first_name || u.email"
+              icon="pi pi-user"
+              routerLink="/profile"
+              routerLinkActive="cu-nav-active"
+              [routerLinkActiveOptions]="{ paths: 'subset', queryParams: 'ignored', fragment: 'ignored', matrixParams: 'ignored' }"
+              [outlined]="true"
+            />
             <p-button label="Вийти" icon="pi pi-sign-out" severity="secondary" (onClick)="logout()" />
           }
         } @else if (!user()) {

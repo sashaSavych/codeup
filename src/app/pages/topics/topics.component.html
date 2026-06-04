@@ -32,9 +32,14 @@
               <span class="sr-only">Урок {{ topic.sort_order }}.</span>
               <span
                 class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-teal-100 text-sm font-semibold text-teal-800"
+                [class.cu-topic--complete]="user() && practiceBySlug()[topic.slug]?.percent === 100"
                 aria-hidden="true"
               >
-                {{ topic.sort_order }}
+                @if (user() && practiceBySlug()[topic.slug]?.percent === 100) {
+                  <span class="pi pi-check-circle text-teal-700" title="Тему завершено"></span>
+                } @else {
+                  {{ topic.sort_order }}
+                }
               </span>
               <div class="min-w-0 flex-1">
                 <h2 class="text-base font-semibold text-slate-900">{{ topic.title }}</h2>

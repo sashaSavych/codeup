@@ -7,6 +7,8 @@
   </p-card>
 } @else {
   <div class="cu-topic-practice flex flex-col gap-4">
+    <cu-breadcrumb [items]="breadcrumbs()" />
+
     <div class="flex flex-wrap items-center gap-2">
       <p-button label="Теорія уроку" icon="pi pi-book" [routerLink]="['/topics', topicResult()!.slug]" [outlined]="true" />
       <p-button label="Усі теми" icon="pi pi-list" routerLink="/topics" [outlined]="true" />
@@ -39,8 +41,9 @@
           @for (task of tasksForTopic(); track task.id) {
             <button
               type="button"
-              class="cu-task-pill flex w-full items-center justify-between gap-2 rounded-xl border px-3 py-2.5 text-left text-sm transition-colors"
+              class="cu-task-pill cu-touch-target flex w-full items-center justify-between gap-2 rounded-xl border px-3 py-2.5 text-left text-sm transition-colors"
               [class.cu-task-pill--active]="selectedTask()?.id === task.id"
+              [class.cu-task-pill--passed]="isTaskPassed(task.id)"
               (click)="selectTask(task)"
             >
               <span class="font-medium text-slate-800">{{ task.order }}. {{ task.title }}</span>
@@ -56,18 +59,35 @@
             <p-card [header]="task.title">
               <div class="cu-task-desc mb-4 text-slate-700" [innerHTML]="taskDescriptionHtml(task)"></div>
 
-              <cu-code-editor [initialCode]="task.starterCode" />
+              <cu-code-editor class="cu-practice-editor block min-h-[40vh] w-full max-w-full" [initialCode]="task.starterCode" />
 
               <div class="mt-4 flex flex-wrap items-center gap-2">
                 <p-button
                   type="button"
+                  class="cu-touch-target"
                   label="Перевірити"
                   icon="pi pi-check"
                   [loading]="verifying()"
                   [disabled]="!editorRef()?.editorReady()"
                   (onClick)="runVerify()"
                 />
+                @if (showNextTaskButton()) {
+                  <p-button
+                    type="button"
+                    class="cu-touch-target"
+                    label="Наступна вправа"
+                    icon="pi pi-arrow-right"
+                    severity="success"
+                    (onClick)="goToNextTask()"
+                  />
+                }
               </div>
+
+              @if (topicCompleted()) {
+                <p-message class="mt-4 block" severity="success" [closable]="false">
+                  <span class="block">Тему завершено! Усі вправи виконано.</span>
+                </p-message>
+              }
 
               @if (verifyState(); as vs) {
                 <p-message class="mt-4 block" [severity]="vs.ok ? 'success' : 'error'" [closable]="false">

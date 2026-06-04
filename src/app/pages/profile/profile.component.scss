@@ -51,3 +51,10 @@
   background-color: #ffffff;
   color: rgb(15 23 42);
 }
+
+@media (max-width: 767px) {
+  .cu-touch-target :deep(.p-button) {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+  }
+}

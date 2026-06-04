@@ -48,9 +48,10 @@ function checkUserSyntax(userCode: string): VerificationResult | null {
   } catch (e) {
     const err = e as Error;
     const loc = mapStackToUserEditor(userCode, locationFromStack(err.stack));
+    const detail = err.message || 'Синтаксична помилка у коді.';
     return {
       ok: false,
-      message: err.message || 'Синтаксична помилка у коді.',
+      message: `Синтаксис: ${detail}`,
       markerLine: loc?.line ?? 1,
       markerColumn: loc?.column ?? 1,
     };
@@ -70,12 +71,12 @@ export function verifyWithHarness(userCode: string, harness: string): Verificati
     return { ok: true };
   } catch (e) {
     const err = e as Error;
-    const msg = err.message || 'Перевірка не пройдена.';
+    const detail = err.message || 'Перевірка не пройдена.';
     const locCombined = locationFromStack(err.stack);
     const inUser = mapStackToUserEditor(userCode, locCombined);
     return {
       ok: false,
-      message: msg,
+      message: `Помилка виконання: ${detail}`,
       markerLine: inUser?.line ?? 1,
       markerColumn: inUser?.column ?? 1,
     };
@@ -116,9 +117,10 @@ export async function verifyAsyncGiveOk(code: string): Promise<VerificationResul
   } catch (e) {
     const err = e as Error;
     const loc = mapStackToUserEditor(code, locationFromStack(err.stack));
+    const detail = err.message || 'Помилка перевірки.';
     return {
       ok: false,
-      message: err.message || 'Помилка перевірки.',
+      message: `Помилка виконання: ${detail}`,
       markerLine: loc?.line ?? 1,
       markerColumn: loc?.column ?? 1,
     };
