@@ -1,0 +1,41 @@
+<div class="mx-auto max-w-3xl space-y-4">
+  <cu-breadcrumb [items]="breadcrumbs()" />
+
+  <p-button
+    label="Назад до практикуму"
+    icon="pi pi-arrow-left"
+    [routerLink]="['/topics', slug(), 'practice']"
+    [queryParams]="{ taskId: taskId() }"
+    [outlined]="true"
+  />
+
+  <h1 class="m-0 text-xl font-semibold text-slate-900">Приклади рішень</h1>
+  <p class="m-0 text-sm text-slate-600">{{ topicTitle() }} — {{ taskTitle() }}</p>
+  <p class="m-0 text-sm text-slate-600">
+    Код показано без імен учнів. Доступно лише для класів, де вчитель увімкнув обмін, і коли є щонайменше 3 добровільні приклади.
+  </p>
+
+  @if (loading()) {
+    <p class="text-slate-600">Завантаження…</p>
+  } @else if (error()) {
+    <p-message severity="error" [text]="error()" [closable]="false" />
+  } @else if (peerCount() < 3) {
+    <p-card>
+      <p class="m-0 text-slate-700">
+        Прикладів ще недостатньо ({{ peerCount() }} з 3). Після успішної перевірки можна додати своє рішення в практикумі, якщо ввімкнено обмін у класі.
+      </p>
+    </p-card>
+  } @else if (snapshots().length === 0) {
+    <p-card>
+      <p class="m-0 text-slate-700">Поки немає опублікованих прикладів для цієї вправи.</p>
+    </p-card>
+  } @else {
+    <ol class="m-0 flex list-decimal flex-col gap-4 pl-5">
+      @for (code of snapshots(); track $index) {
+        <li>
+          <pre class="m-0 overflow-x-auto rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-800"><code>{{ code }}</code></pre>
+        </li>
+      }
+    </ol>
+  }
+</div>

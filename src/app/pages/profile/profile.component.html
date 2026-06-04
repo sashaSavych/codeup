@@ -61,6 +61,15 @@
                       </div>
                     </div>
 
+                    @if (prog.percent === 100) {
+                      <p-button
+                        class="mb-4"
+                        label="Отримати сертифікат"
+                        icon="pi pi-id-card"
+                        routerLink="/certificate"
+                      />
+                    }
+
                     <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">За темами</p>
                     <ul class="flex flex-col gap-4">
                       @for (tp of prog.topics; track tp.topicSlug) {

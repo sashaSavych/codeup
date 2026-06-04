@@ -48,18 +48,30 @@
               <ul class="m-0 flex list-none flex-col gap-2 p-0">
                 @for (c of classes(); track c.id) {
                   <li
-                    class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2"
+                    class="flex flex-col gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <span class="font-medium text-slate-900">{{ c.name }}</span>
-                    <p-button
-                      icon="pi pi-trash"
-                      severity="danger"
-                      [outlined]="true"
-                      [rounded]="true"
-                      [disabled]="actionBusy"
-                      [attr.aria-label]="'Видалити клас ' + c.name"
-                      (onClick)="removeClass(c)"
-                    />
+                    <div class="flex flex-wrap items-center gap-3">
+                      <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-800">
+                        <p-checkbox
+                          [binary]="true"
+                          [ngModel]="c.peer_solutions_enabled === true"
+                          (ngModelChange)="togglePeerSharing(c, $event)"
+                          [disabled]="actionBusy"
+                          [inputId]="'peer-' + c.id"
+                        />
+                        <span>Приклади рішень учнів</span>
+                      </label>
+                      <p-button
+                        icon="pi pi-trash"
+                        severity="danger"
+                        [outlined]="true"
+                        [rounded]="true"
+                        [disabled]="actionBusy"
+                        [attr.aria-label]="'Видалити клас ' + c.name"
+                        (onClick)="removeClass(c)"
+                      />
+                    </div>
                   </li>
                 }
               </ul>

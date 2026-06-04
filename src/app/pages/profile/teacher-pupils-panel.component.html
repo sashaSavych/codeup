@@ -1,3 +1,62 @@
+<p-card class="mb-6" header="Порядок тем для класу">
+  <p class="mb-4 text-sm text-slate-600">
+    Оберіть клас і перетягніть теми — учні цього класу побачать такий порядок у «Теми» та «Продовжити».
+  </p>
+  @if (classes().length === 0) {
+    <p class="text-slate-600">Спочатку адміністратор додає класи в меню «Адмін».</p>
+  } @else {
+    <div class="mb-4 flex max-w-md flex-col gap-2">
+      <label class="text-sm font-medium text-slate-700" for="cu-order-class">Клас</label>
+      <select
+        id="cu-order-class"
+        class="cu-select w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+        [ngModel]="orderClassId()"
+        (ngModelChange)="onOrderClassChange($event)"
+      >
+        <option value="">Оберіть клас</option>
+        @for (c of classes(); track c.id) {
+          <option [value]="c.id">{{ c.name }}</option>
+        }
+      </select>
+    </div>
+    @if (orderError()) {
+      <p-message class="mb-3 block" severity="error" [text]="orderError()" [closable]="false" />
+    }
+    @if (orderMessage()) {
+      <p-message class="mb-3 block" severity="success" [text]="orderMessage()" [closable]="false" />
+    }
+    @if (orderClassId()) {
+      @if (orderLoading()) {
+        <p class="text-slate-600">Завантаження тем…</p>
+      } @else {
+        <ul
+          class="m-0 flex list-none flex-col gap-2 p-0"
+          cdkDropList
+          (cdkDropListDropped)="dropTopic($event)"
+        >
+          @for (t of topicOrderList(); track t.slug) {
+            <li
+              cdkDrag
+              class="flex cursor-grab items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 active:cursor-grabbing"
+            >
+              <span class="pi pi-bars text-slate-400" aria-hidden="true"></span>
+              <span class="font-medium text-slate-900">{{ t.title }}</span>
+            </li>
+          }
+        </ul>
+        <p-button
+          class="mt-4"
+          label="Зберегти порядок"
+          icon="pi pi-save"
+          [loading]="orderSaving()"
+          [disabled]="topicOrderList().length === 0"
+          (onClick)="saveTopicOrder()"
+        />
+      }
+    }
+  }
+</p-card>
+
 <p-card header="Учні та прогрес практикуму">
   <p class="mb-4 text-sm text-slate-600">
     Перелік облікових записів з роллю «Учень»: скільки вправ виконано на сервері (після входу учня дані з браузера синхронізуються автоматично).

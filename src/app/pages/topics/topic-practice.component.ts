@@ -1,4 +1,5 @@
 import { Component, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -7,6 +8,7 @@ import { from } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { CheckboxModule } from 'primeng/checkbox';
 import { MessageModule } from 'primeng/message';
 
 import type { CodeTask } from '../../core/practice/code-task.model';
@@ -15,6 +17,8 @@ import { collectLocalPassedTaskIds, setPracticeTaskPassed } from '../../core/pra
 import { GamificationService } from '../../core/gamification/gamification.service';
 import { PracticeProgressRemoteService } from '../../core/practice/practice-progress-remote.service';
 import { PracticeTasksService } from '../../core/practice/practice-tasks.service';
+import { TaskSubmissionsService } from '../../core/practice/task-submissions.service';
+import { ProfileService } from '../../core/profile/profile.service';
 import { SupabaseService } from '../../core/supabase/supabase.service';
 import { TopicsService } from '../../core/topics/topics.service';
 import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.component';
@@ -27,7 +31,16 @@ marked.setOptions({ gfm: true, breaks: true });
 @Component({
   selector: 'cu-topic-practice',
   standalone: true,
-  imports: [RouterLink, ButtonModule, CardModule, MessageModule, CodeEditorComponent, BreadcrumbComponent],
+  imports: [
+    FormsModule,
+    RouterLink,
+    ButtonModule,
+    CardModule,
+    CheckboxModule,
+    MessageModule,
+    CodeEditorComponent,
+    BreadcrumbComponent,
+  ],
   templateUrl: './topic-practice.component.html',
   styleUrl: './topic-practice.component.scss',
 })
@@ -39,6 +52,8 @@ export class TopicPracticeComponent {
   private readonly practiceProgressRemote = inject(PracticeProgressRemoteService);
   private readonly gamification = inject(GamificationService);
   private readonly supabase = inject(SupabaseService);
+  private readonly profileService = inject(ProfileService);
+  private readonly taskSubmissions = inject(TaskSubmissionsService);
   private readonly sanitizer = inject(DomSanitizer);
 
   readonly editorRef = viewChild(CodeEditorComponent);
@@ -83,6 +98,10 @@ export class TopicPracticeComponent {
   readonly showNextTaskButton = signal(false);
   readonly topicCompleted = signal(false);
 
+  readonly peerSharingEnabled = signal(false);
+  readonly shareOptIn = signal(false);
+  readonly peerCount = signal(0);
+
   readonly passedTaskIds = signal<ReadonlySet<string>>(new Set());
 
   readonly breadcrumbs = computed(() => {
@@ -121,6 +140,7 @@ export class TopicPracticeComponent {
       this.verifyState.set(null);
       this.showNextTaskButton.set(false);
       this.topicCompleted.set(false);
+      void this.refreshPeerMeta();
     });
 
     effect(() => {
@@ -147,6 +167,26 @@ export class TopicPracticeComponent {
 
   selectTask(task: CodeTask): void {
     this.selectedTaskId.set(task.id);
+  }
+
+  private async refreshPeerMeta(): Promise<void> {
+    const task = this.selectedTask();
+    const classId = this.profileService.cachedProfile()?.class_id;
+    const enabled = await this.taskSubmissions.isPeerSharingEnabledForClass(classId);
+    this.peerSharingEnabled.set(enabled);
+    if (!task || !enabled) {
+      this.peerCount.set(0);
+      return;
+    }
+    const uid = this.supabase.user()?.id;
+    if (uid) {
+      this.shareOptIn.set(await this.taskSubmissions.getOwnShareOptIn(uid, task.id));
+    }
+    this.peerCount.set(await this.taskSubmissions.peerCount(task.id));
+  }
+
+  onShareOptInChange(checked: boolean): void {
+    this.shareOptIn.set(checked);
   }
 
   taskDescriptionHtml(task: CodeTask): SafeHtml {
@@ -243,6 +283,14 @@ export class TopicPracticeComponent {
       editor.applyVerificationResult(result);
       if (result.ok) {
         await this.markTaskPassed(task.id);
+        const uid = this.supabase.user()?.id;
+        if (uid && this.peerSharingEnabled()) {
+          const { error: subErr } = await this.taskSubmissions.upsertOnPass(uid, task.id, code, this.shareOptIn());
+          if (subErr) {
+            console.warn('task_submissions', subErr.message);
+          }
+          void this.refreshPeerMeta();
+        }
         this.verifyState.set({ ok: true, text: 'Успішно! Завдання виконано.' });
         this.maybeAutoAdvance(task.id);
       } else {

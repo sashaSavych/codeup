@@ -19,6 +19,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/topics/topic-practice.component').then((m) => m.TopicPracticeComponent),
   },
   {
+    path: 'topics/:slug/practice/examples',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/topics/peer-solutions.component').then((m) => m.PeerSolutionsComponent),
+  },
+  {
     path: 'topics/:slug',
     loadComponent: () => import('./pages/topics/topic-theory.component').then((m) => m.TopicTheoryComponent),
   },
@@ -41,6 +46,11 @@ export const routes: Routes = [
     path: 'leaderboard',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/leaderboard/leaderboard.component').then((m) => m.LeaderboardComponent),
+  },
+  {
+    path: 'certificate',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/certificate/certificate.component').then((m) => m.CertificateComponent),
   },
   {
     path: 'admin',

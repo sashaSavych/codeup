@@ -1,0 +1,25 @@
+@if (loading()) {
+  <p class="text-slate-600">Перевірка прогресу…</p>
+} @else {
+  <div class="cu-certificate-page mx-auto max-w-2xl">
+    <div class="cu-certificate-no-print mb-6 flex flex-wrap gap-2">
+      <p-button label="Друкувати / Зберегти PDF" icon="pi pi-print" (onClick)="print()" />
+      <p-button label="До прогресу" icon="pi pi-user" routerLink="/profile" [queryParams]="{ tab: 'progress' }" [outlined]="true" />
+      <p-button label="Головна" icon="pi pi-home" routerLink="/" [outlined]="true" />
+    </div>
+
+    <article class="cu-certificate-card rounded-2xl border-2 border-teal-600 bg-gradient-to-b from-teal-50 to-white px-8 py-10 text-center shadow-sm">
+      <p class="mb-2 text-xs font-semibold uppercase tracking-widest text-teal-800">CodeUp · JavaScript</p>
+      <h1 class="mb-6 text-2xl font-semibold text-slate-900">Сертифікат про завершення модуля</h1>
+      <p class="mb-2 text-slate-600">Цим підтверджується, що</p>
+      <p class="mb-6 text-2xl font-semibold text-slate-900">{{ displayName() }}</p>
+      <p class="mb-4 leading-relaxed text-slate-700">
+        успішно виконав(ла) усі вправи практикуму навчального модуля з основ JavaScript
+        @if (progress(); as p) {
+          <span class="block mt-2 text-sm text-slate-600">({{ p.completed }} з {{ p.total }} вправ)</span>
+        }
+      </p>
+      <p class="text-sm text-slate-600">{{ completionDate() }}</p>
+    </article>
+  </div>
+}

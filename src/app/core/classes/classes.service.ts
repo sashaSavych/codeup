@@ -10,7 +10,7 @@ export class ClassesService {
   async list(): Promise<SchoolClass[]> {
     const { data, error } = await this.supabase.client
       .from('classes')
-      .select('id,name,sort_order,created_at')
+      .select('id,name,sort_order,created_at,peer_solutions_enabled')
       .order('sort_order', { ascending: true })
       .order('name', { ascending: true });
 
@@ -32,6 +32,14 @@ export class ClassesService {
 
   async delete(id: string): Promise<{ error: Error | null }> {
     const { error } = await this.supabase.client.from('classes').delete().eq('id', id);
+    return { error: error ? new Error(error.message) : null };
+  }
+
+  async setPeerSolutionsEnabled(id: string, enabled: boolean): Promise<{ error: Error | null }> {
+    const { error } = await this.supabase.client
+      .from('classes')
+      .update({ peer_solutions_enabled: enabled })
+      .eq('id', id);
     return { error: error ? new Error(error.message) : null };
   }
 }

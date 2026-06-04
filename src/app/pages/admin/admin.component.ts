@@ -2,6 +2,7 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { TabsModule } from 'primeng/tabs';
@@ -17,7 +18,7 @@ import type { SchoolClass } from '../../models/school-class.model';
 @Component({
   selector: 'cu-admin',
   standalone: true,
-  imports: [FormsModule, ButtonModule, CardModule, InputTextModule, MessageModule, TabsModule],
+  imports: [FormsModule, ButtonModule, CardModule, CheckboxModule, InputTextModule, MessageModule, TabsModule],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss',
 })
@@ -97,6 +98,18 @@ export class AdminComponent implements OnInit {
       return;
     }
     this.newClassName = '';
+    await this.reloadClasses();
+  }
+
+  async togglePeerSharing(c: SchoolClass, enabled: boolean): Promise<void> {
+    this.actionError = '';
+    this.actionBusy = true;
+    const { error } = await this.classesService.setPeerSolutionsEnabled(c.id, enabled);
+    this.actionBusy = false;
+    if (error) {
+      this.actionError = error.message;
+      return;
+    }
     await this.reloadClasses();
   }
 

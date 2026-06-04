@@ -36,6 +36,11 @@
           }
         </div>
       </ng-template>
+      @if (user() && practiceOverall()?.percent === 100 && practiceOverall()!.total > 0) {
+        <div class="mb-4">
+          <p-button label="Отримати сертифікат" icon="pi pi-id-card" routerLink="/certificate" />
+        </div>
+      }
       @if (user() && practiceError(); as perr) {
         <p-message class="mb-4 block max-w-xl" severity="warn" [text]="perr" [closable]="false" />
       }

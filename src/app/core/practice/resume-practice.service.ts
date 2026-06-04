@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 
+import { ProfileService } from '../profile/profile.service';
 import { TopicsService } from '../topics/topics.service';
 import { PracticeProgressRemoteService } from './practice-progress-remote.service';
 import { collectLocalPassedTaskIds } from './practice-storage';
@@ -18,13 +19,15 @@ export class ResumePracticeService {
     private readonly practiceTasks: PracticeTasksService,
     private readonly topicsService: TopicsService,
     private readonly practiceProgressRemote: PracticeProgressRemoteService,
+    private readonly profileService: ProfileService,
   ) {}
 
   /** First incomplete task in global topic order. */
   async getResume(userId: string): Promise<PracticeResume | null> {
+    const classId = this.profileService.cachedProfile()?.class_id ?? null;
     const [summaries, topics] = await Promise.all([
       this.practiceTasks.listTaskSummaries(),
-      this.topicsService.listSummaries(),
+      this.topicsService.listSummariesForUser(classId),
     ]);
     if (!summaries.length || !topics.length) {
       return null;

@@ -1,7 +1,7 @@
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -41,6 +41,7 @@ type ProfileFormSnapshot = {
   standalone: true,
   imports: [
     ReactiveFormsModule,
+    RouterLink,
     ButtonModule,
     CardModule,
     CheckboxModule,
@@ -236,7 +237,7 @@ export class ProfileComponent implements OnInit {
     try {
       const [summaries, topics] = await Promise.all([
         this.practiceTasks.listTaskSummaries(),
-        this.topicsService.listSummaries(),
+        this.topicsService.listSummariesForUser(this.profileService.cachedProfile()?.class_id ?? null),
       ]);
       await this.practiceProgressRemote.syncLocalPassedToRemote(userId);
       const remote = await this.practiceProgressRemote.listPassedTaskIdsForUser(userId);

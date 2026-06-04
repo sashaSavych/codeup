@@ -1,0 +1,15 @@
+:host {
+  display: block;
+}
+
+@media print {
+  .cu-certificate-no-print {
+    display: none !important;
+  }
+
+  .cu-certificate-card {
+    border-width: 3px;
+    box-shadow: none;
+    page-break-inside: avoid;
+  }
+}

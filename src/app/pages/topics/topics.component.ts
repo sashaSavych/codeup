@@ -15,6 +15,7 @@ import { collectLocalPassedTaskIds } from '../../core/practice/practice-storage'
 import { PracticeTasksService } from '../../core/practice/practice-tasks.service';
 import { SupabaseService } from '../../core/supabase/supabase.service';
 import type { TopicSummary } from '../../core/topics/topic.model';
+import { ProfileService } from '../../core/profile/profile.service';
 import { TopicsService } from '../../core/topics/topics.service';
 import { PROGRESS_LEGEND_TOOLTIP } from '../../shared/copy/progress-labels';
 
@@ -27,6 +28,7 @@ import { PROGRESS_LEGEND_TOOLTIP } from '../../shared/copy/progress-labels';
 })
 export class TopicsComponent {
   private readonly topicsService = inject(TopicsService);
+  private readonly profileService = inject(ProfileService);
   private readonly supabase = inject(SupabaseService);
   private readonly practiceTasks = inject(PracticeTasksService);
   private readonly practiceProgressRemote = inject(PracticeProgressRemoteService);
@@ -75,7 +77,8 @@ export class TopicsComponent {
     this.loading.set(true);
     this.errorMessage.set(null);
     try {
-      const rows = await this.topicsService.listSummaries();
+      const classId = this.profileService.cachedProfile()?.class_id ?? null;
+      const rows = await this.topicsService.listSummariesForUser(classId);
       this.topics.set(rows);
     } catch (e) {
       this.errorMessage.set(e instanceof Error ? e.message : 'Не вдалося завантажити теми.');

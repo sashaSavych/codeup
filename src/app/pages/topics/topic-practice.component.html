@@ -106,6 +106,38 @@
                   <span class="cu-verify-msg block whitespace-pre-wrap break-words">{{ vs.text }}</span>
                 </p-message>
               }
+
+              @if (peerSharingEnabled() && selectedTask(); as t) {
+                <div class="mt-4 rounded-lg border border-slate-200 bg-slate-50/80 p-3">
+                  <div class="flex items-start gap-2">
+                    <p-checkbox
+                      [binary]="true"
+                      [ngModel]="shareOptIn()"
+                      (ngModelChange)="onShareOptInChange($event)"
+                      inputId="cu-share-opt"
+                    />
+                    <label for="cu-share-opt" class="cursor-pointer text-sm text-slate-800">
+                      Додати мій код як анонімний приклад для однокласників (без імені)
+                    </label>
+                  </div>
+                  @if (peerCount() > 0 && peerCount() < 3) {
+                    <p class="mt-2 mb-0 text-xs text-slate-600">
+                      Прикладів у класі: {{ peerCount() }} з 3 — після третього з’явиться перегляд.
+                    </p>
+                  }
+                  @if (peerCount() >= 3) {
+                    <p-button
+                      class="mt-3"
+                      label="Приклади рішень"
+                      icon="pi pi-users"
+                      size="small"
+                      [outlined]="true"
+                      [routerLink]="['/topics', topicSlug(), 'practice', 'examples']"
+                      [queryParams]="{ taskId: t.id }"
+                    />
+                  }
+                </div>
+              }
             </p-card>
           }
         </section>
