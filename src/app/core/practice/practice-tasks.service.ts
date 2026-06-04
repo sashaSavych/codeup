@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { SupabaseService } from '../supabase/supabase.service';
 
 import type { CodeTask } from './code-task.model';
+import { parseSuccessCriteria } from './parse-success-criteria';
 import type { PracticeTaskSummaryRow } from './practice-progress';
 import { verifyAsyncGiveOk, verifyWithHarness } from './task-verify';
 
@@ -55,6 +56,7 @@ export class PracticeTasksService {
   }
 
   private rowToTask(row: PracticeTaskRow): CodeTask {
+    const criteria = parseSuccessCriteria(row.description);
     const base = {
       id: row.id,
       topicSlug: row.topic_slug,
@@ -62,6 +64,7 @@ export class PracticeTasksService {
       title: row.title,
       description: row.description,
       starterCode: row.starter_code,
+      ...(criteria.length > 0 ? { successCriteria: criteria } : {}),
     };
     if (row.verify_kind === 'async_give_ok') {
       return { ...base, verify: verifyAsyncGiveOk };

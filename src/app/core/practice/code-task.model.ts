@@ -15,6 +15,8 @@ export interface CodeTask {
   title: string;
   description: string;
   starterCode: string;
+  /** Parsed from description «## Критерії успіху» section when present. */
+  successCriteria?: string[];
   /** Runs learner code in browser via `new Function` + harness (trusted educational sandbox only). */
   verify: (code: string) => VerificationResult | Promise<VerificationResult>;
 }

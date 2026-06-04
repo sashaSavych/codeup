@@ -15,7 +15,19 @@
         @if (!isAdmin()) {
           <p-tabpanel value="progress">
             <div class="cu-profile-progress-scroll">
-              <p-card header="Прогрес практикуму">
+              <p-card>
+                <ng-template pTemplate="header">
+                  <div class="flex items-center gap-2">
+                    <span class="font-semibold text-slate-900">Прогрес практикуму</span>
+                    <span
+                      class="pi pi-info-circle cursor-help text-slate-500"
+                      [pTooltip]="progressLegendTooltip"
+                      tooltipPosition="right"
+                      aria-label="Пояснення статусів прогресу"
+                      tabindex="0"
+                    ></span>
+                  </div>
+                </ng-template>
                 @if (practiceProgressLoading()) {
                   <p class="text-slate-600">Завантаження прогресу…</p>
                 } @else if (practiceProgressError()) {

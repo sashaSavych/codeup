@@ -36,7 +36,11 @@ insert into public.practice_tasks (
   $pt_intro_hello_slug$intro$pt_intro_hello_slug$,
   1,
   $pt_intro_hello_title$Перший рядок$pt_intro_hello_title$,
-  $pt_intro_hello_desc$Оголоси **константу** `hello` з рядком `"CodeUp"` (лапки як у прикладі). У теорії цієї теми — розділ «Константа й рядок». Нічого не виводь у консоль — перевірка читає значення змінної.$pt_intro_hello_desc$,
+  $pt_intro_hello_desc$Оголоси **константу** `hello` з рядком `"CodeUp"` (лапки як у прикладі). У теорії цієї теми — розділ «Константа й рядок». Нічого не виводь у консоль — перевірка читає значення змінної.
+
+## Критерії успіху
+- Є константа `hello`
+- Значення — рядок `"CodeUp"`$pt_intro_hello_desc$,
   $pt_intro_hello_starter$// const hello = ...
 $pt_intro_hello_starter$,
   $pt_intro_hello_harness$;(function () {
@@ -61,7 +65,11 @@ insert into public.practice_tasks (
   $pt_intro_greet_slug$intro$pt_intro_greet_slug$,
   2,
   $pt_intro_greet_title$Функція привітання$pt_intro_greet_title$,
-  $pt_intro_greet_desc$Напиши функцію **greet(name)**, яка **повертає** (`return`) рядок виду `Привіт, Імʼя!` (з пробілом після коми). Можна склеїти частини через `+`. У теорії — розділ «Найпростіша функція та `return`».$pt_intro_greet_desc$,
+  $pt_intro_greet_desc$Напиши функцію **greet(name)**, яка **повертає** (`return`) рядок виду `Привіт, Імʼя!` (з пробілом після коми). Можна склеїти частини через `+`. У теорії — розділ «Найпростіша функція та `return`».
+
+## Критерії успіху
+- Є функція `greet` з одним параметром
+- `greet("Оля")` повертає рядок `Привіт, Оля!`$pt_intro_greet_desc$,
   $pt_intro_greet_starter$function greet(name) {
   // поверни рядок
 }
@@ -88,7 +96,12 @@ insert into public.practice_tasks (
   $pt_syntax_number_slug$syntax-basics$pt_syntax_number_slug$,
   1,
   $pt_syntax_number_title$Рядок у число$pt_syntax_number_title$,
-  $pt_syntax_number_desc$Оголоси **const n**, присвої йому результат перетворення рядка `"42"` у число (використай **Number(...)**).$pt_syntax_number_desc$,
+  $pt_syntax_number_desc$Оголоси **const n**, присвої йому результат перетворення рядка `"42"` у число (використай **Number(...)**).
+
+## Критерії успіху
+- Є константа `n`
+- Тип `n` — число (не рядок)
+- Значення `n` дорівнює 42$pt_syntax_number_desc$,
   $pt_syntax_number_starter$// const n = ...
 $pt_syntax_number_starter$,
   $pt_syntax_number_harness$;(function () {

@@ -17,12 +17,15 @@
     <p-message severity="error" [text]="error()" [closable]="false" />
   } @else if (rows().length === 0) {
     <p-card>
-      <p class="m-0 text-slate-700">
-        Поки нікого у списку. Переконайся, що в профілі обрано клас, увімкнено участь у змаганні та збережено псевдонім — або зайди пізніше.
-      </p>
+      <p class="m-0 text-slate-700">{{ emptyHint() }}</p>
       <p-button class="mt-4" label="До профілю" icon="pi pi-user" routerLink="/profile" [queryParams]="{ tab: 'profile' }" />
     </p-card>
   } @else {
+    @if (showMyRankBanner()) {
+      <p class="m-0 rounded-lg border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-medium text-teal-900">
+        Ваше місце: {{ myRank() }}
+      </p>
+    }
     <p-card>
       <div class="overflow-x-auto">
         <table class="cu-lb-table w-full min-w-[20rem] border-collapse text-left text-sm">

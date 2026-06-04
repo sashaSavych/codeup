@@ -10,6 +10,7 @@ import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
 
 import type { CodeTask } from '../../core/practice/code-task.model';
+import { stripSuccessCriteriaFromDescription } from '../../core/practice/parse-success-criteria';
 import { collectLocalPassedTaskIds, setPracticeTaskPassed } from '../../core/practice/practice-storage';
 import { GamificationService } from '../../core/gamification/gamification.service';
 import { PracticeProgressRemoteService } from '../../core/practice/practice-progress-remote.service';
@@ -149,7 +150,8 @@ export class TopicPracticeComponent {
   }
 
   taskDescriptionHtml(task: CodeTask): SafeHtml {
-    const raw = marked.parse(task.description, { async: false }) as string;
+    const body = stripSuccessCriteriaFromDescription(task.description);
+    const raw = marked.parse(body, { async: false }) as string;
     return this.sanitizer.bypassSecurityTrustHtml(raw);
   }
 

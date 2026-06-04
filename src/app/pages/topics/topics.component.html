@@ -21,7 +21,21 @@
   } @else if (errorMessage(); as err) {
     <p-message class="block max-w-xl" severity="error" [text]="err" [closable]="false" />
   } @else {
-    <p-card header="Зміст модуля">
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="font-semibold text-slate-900">Зміст модуля</span>
+          @if (user()) {
+            <span
+              class="pi pi-info-circle cursor-help text-base text-slate-500"
+              [pTooltip]="progressLegendTooltip"
+              tooltipPosition="right"
+              aria-label="Пояснення статусів практикуму"
+              tabindex="0"
+            ></span>
+          }
+        </div>
+      </ng-template>
       @if (user() && practiceError(); as perr) {
         <p-message class="mb-4 block max-w-xl" severity="warn" [text]="perr" [closable]="false" />
       }

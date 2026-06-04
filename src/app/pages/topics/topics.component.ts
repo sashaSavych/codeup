@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
+import { TooltipModule } from 'primeng/tooltip';
 
 import {
   computeOverallPracticeProgress,
@@ -15,11 +16,12 @@ import { PracticeTasksService } from '../../core/practice/practice-tasks.service
 import { SupabaseService } from '../../core/supabase/supabase.service';
 import type { TopicSummary } from '../../core/topics/topic.model';
 import { TopicsService } from '../../core/topics/topics.service';
+import { PROGRESS_LEGEND_TOOLTIP } from '../../shared/copy/progress-labels';
 
 @Component({
   selector: 'cu-topics',
   standalone: true,
-  imports: [RouterLink, ButtonModule, CardModule, MessageModule],
+  imports: [RouterLink, ButtonModule, CardModule, MessageModule, TooltipModule],
   templateUrl: './topics.component.html',
   styleUrl: './topics.component.scss',
 })
@@ -30,6 +32,7 @@ export class TopicsComponent {
   private readonly practiceProgressRemote = inject(PracticeProgressRemoteService);
 
   readonly user = this.supabase.user;
+  readonly progressLegendTooltip = PROGRESS_LEGEND_TOOLTIP;
   readonly topics = signal<TopicSummary[]>([]);
   readonly loading = signal(true);
   readonly errorMessage = signal<string | null>(null);

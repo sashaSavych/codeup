@@ -1,9 +1,14 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
 
+import {
+  canShowMyRank,
+  findMyRank,
+  leaderboardEmptyHint,
+} from '../../core/gamification/leaderboard-helpers';
 import { GamificationService, type LeaderboardRow } from '../../core/gamification/gamification.service';
 import { ProfileService } from '../../core/profile/profile.service';
 import { SupabaseService } from '../../core/supabase/supabase.service';
@@ -33,6 +38,17 @@ export class LeaderboardComponent implements OnInit {
   readonly error = signal('');
 
   readonly user = this.supabase.user;
+
+  readonly emptyHint = computed(() => leaderboardEmptyHint(this.profileService.cachedProfile()));
+
+  readonly myRank = computed(() => {
+    const nick = this.profileService.cachedProfile()?.leaderboard_nickname?.trim() ?? '';
+    return findMyRank(this.rows(), nick);
+  });
+
+  readonly showMyRankBanner = computed(
+    () => canShowMyRank(this.profileService.cachedProfile()) && this.myRank() !== null,
+  );
 
   async ngOnInit(): Promise<void> {
     const id = this.supabase.user()?.id;

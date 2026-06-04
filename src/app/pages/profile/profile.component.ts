@@ -8,6 +8,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { TabsModule } from 'primeng/tabs';
+import { TooltipModule } from 'primeng/tooltip';
 
 import { ClassesService } from '../../core/classes/classes.service';
 import { GamificationService, type GamificationStatus } from '../../core/gamification/gamification.service';
@@ -20,6 +21,7 @@ import { SupabaseService } from '../../core/supabase/supabase.service';
 import { TopicsService } from '../../core/topics/topics.service';
 import type { SchoolClass } from '../../models/school-class.model';
 import type { UserProfile } from '../../models/user-profile.model';
+import { PROGRESS_LEGEND_TOOLTIP } from '../../shared/copy/progress-labels';
 import { GamificationRulesPanelComponent } from '../../shared/gamification-rules-panel/gamification-rules-panel.component';
 import { TeacherPupilsPanelComponent } from './teacher-pupils-panel.component';
 
@@ -47,6 +49,7 @@ type ProfileFormSnapshot = {
     TabsModule,
     TeacherPupilsPanelComponent,
     GamificationRulesPanelComponent,
+    TooltipModule,
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
@@ -72,6 +75,8 @@ export class ProfileComponent implements OnInit {
   readonly canSeePupils = computed(() => this.profileService.cachedProfile()?.role === 'teacher');
 
   readonly isPupilRole = computed(() => this.profileService.cachedProfile()?.role === 'student');
+
+  readonly progressLegendTooltip = PROGRESS_LEGEND_TOOLTIP;
 
   /** Довідник класів (з адмінки); порожньо, якщо ще не налаштовано. */
   classesList: SchoolClass[] = [];
@@ -331,6 +336,13 @@ export class ProfileComponent implements OnInit {
     this.form.patchValue(this.savedSnapshot);
     this.syncDirtyFlag();
     if (role === 'student') {
+      const snap = this.savedSnapshot;
+      if (snap.competition_opt_in && snap.class_id.trim() && snap.leaderboard_nickname.trim()) {
+        const rec = await this.gamification.reconcile();
+        if (rec.error) {
+          console.warn('gamification_reconcile', rec.error.message);
+        }
+      }
       void this.loadGamification();
     }
 
