@@ -1,5 +1,7 @@
-import { Component, computed, effect, inject } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { ButtonModule } from 'primeng/button';
 
 import { ChatAiService } from './core/chat-ai/chat-ai.service';
@@ -21,6 +23,9 @@ export class AppComponent {
   readonly chatAi = inject(ChatAiService);
   private readonly router = inject(Router);
 
+  /** Certificate page: no header/nav (screen + print). */
+  readonly isCertificateView = signal(this.isCertificateUrl(this.router.url));
+
   readonly user = this.supabase.user;
 
   readonly isAdmin = computed(() => this.profileService.cachedProfile()?.role === 'admin');
@@ -39,6 +44,13 @@ export class AppComponent {
   });
 
   constructor() {
+    this.router.events
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => this.isCertificateView.set(this.isCertificateUrl(this.router.url)));
+
     effect(() => {
       const u = this.supabase.user();
       if (!u) {
@@ -47,6 +59,11 @@ export class AppComponent {
       }
       void this.profileService.refreshCachedProfile(u.id);
     });
+  }
+
+  private isCertificateUrl(url: string): boolean {
+    const path = url.split('?')[0].split('#')[0];
+    return path === '/certificate';
   }
 
   async logout(): Promise<void> {
