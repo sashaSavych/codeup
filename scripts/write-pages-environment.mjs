@@ -20,6 +20,7 @@ export const environment = {
   supabaseUrl: ${JSON.stringify(supabaseUrl)},
   supabasePublishableKey: ${JSON.stringify(supabasePublishableKey)},
   chatAiEndpoint: ${JSON.stringify(chatAiEndpoint)} as string | undefined,
+  showLeaderboardPreview: true,
 };
 `;
 
